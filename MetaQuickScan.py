@@ -65,7 +65,8 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-#AIW From API "Add a list of photos to the chunk." Must be run before getting a reference to camera.
+#AIW From API "Add a list of photos to the chunk." 
+# - Must be run before getting a reference to camera.
 phaseTime = time.time()
 PHASE_LABEL = "Adding Photos"
 chunk.addPhotos(images, progress=progress_callback)

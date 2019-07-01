@@ -1,4 +1,3 @@
-# Basic starting git ignore
 # Ignore vscode workspace settings
 .vscode
 

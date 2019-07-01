@@ -1,8 +1,11 @@
-"""MetaScan is a script for automating the processing of photogrametry data with Metashape."""
+"""MetaScan is a script for automating the processing of photogrametry data with Metashape for archival use."""
 
-PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkLowQ/"
+#AIW Change this path to where user has their scan data stored. Create a folder 
+# in this dir named 'masks' and place empty images to use for bg masks.
+PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
-PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkLowQ/masks/{filename}_mask.tif"
+#AIW Change this path to the masks' folder in the user's scan data directory.
+PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkersHQ/masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
@@ -69,32 +72,46 @@ chunk.addPhotos(images, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 
+#AIW From API "Add a list of photos to the chunk." 
+# - Must be run before getting a reference to camera.
+phaseTime = time.time()
+PHASE_LABEL = "Adding Photos"
+chunk.addPhotos(images, progress=progress_callback)
+print_time_elapsed(phaseTime)
+doc.save()
+
 #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]
 
-#AIW From API "Import masks for multiple cameras." Import background images for masking out the background. Camera must be referenced for this step to work.
+#AIW From API "Import masks for multiple cameras." 
+# - Import background images for masking out the background. 
+# - Camera must be referenced for this step to work.
 phaseTime = time.time()
 PHASE_LABEL = "Masking Photos"
 chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 
-#AIW From API "Create markers from coded targets." Detects markers with default settings.
+#AIW From API "Create markers from coded targets." 
+# - Detects markers with default settings.
 phaseTime = time.time()
 PHASE_LABEL = "Detecting Markers"
 chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 
-"""AIW From API "Perform image matching for the chunk frame." First step of the "Workflow" process called "Align Photos" in Metashape GUI, 
-which generates the Sparse Cloud. Keypoint and Tiepoint of 0 is = no restriction. Accuracy below MediumAccuracy consistently results in failed camera alignment"""
+#AIW From API "Perform image matching for the chunk frame." 
+# - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
+# - Keypoints and Tiepoints are set to unlimited. 
+# - Accuracy below MediumAccuracy consistently results in failed camera alignment.
 phaseTime = time.time()
 PHASE_LABEL = "Matching Photos"
-chunk.matchPhotos(accuracy=Metashape.HighAccuracy, reference_preselection=False, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0), progress=progress_callback)
+chunk.matchPhotos(accuracy=Metashape.HighestAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0), progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 
-#AIW From API "Perform photo alignment for the chunk." Second step of the "Workflow" process called "Align Photos" in Metashape GUI, which generates the Sparse Cloud.
+#AIW From API "Perform photo alignment for the chunk." 
+# - Second step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points.
 phaseTime = time.time()
 PHASE_LABEL = "Aligning Cameras"
 chunk.alignCameras(progress=progress_callback)
@@ -107,36 +124,40 @@ NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
 doc.save()
 
-#AIW Generates Dense Cloud.
+#AIW Steps for generating the Dense Cloud.
 phaseTime = time.time()
 PHASE_LABEL = "Dense Cloud Generation"
 #AIW From API "Generate depth maps for the chunk."
+# - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
 chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, progress=progress_callback)
 #AIW From API "Generate dense cloud for the chunk."
+# - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
 chunk.buildDenseCloud(point_colors=True, keep_depth=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 
-"""#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
+#AIW From API "Generate model for the chunk frame." 
+# - Builds mesh to be used for next steps.
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
-chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, vertex_colors=True, keep_depth=True, progress=progress_callback)
+chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()"""
+doc.save()
 
-"""#AIW From API "Generate uv mapping for the model."
+#AIW From API "Generate uv mapping for the model."
 phaseTime = time.time()
 PHASE_LABEL = "UV 3D Model"
 chunk.buildUV(progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()"""
+doc.save()
 
-"""#AIW From API "Generate texture for the chunk." Generates a 4k texture for the 3D model.
+#AIW From API "Generate texture for the chunk." 
+# - Generates a 4k texture for the 3D model.
 phaseTime = time.time()
 PHASE_LABEL = "Generate Texture"
 chunk.buildTexture(blending=Metashape.MosaicBlending, size=(4096), fill_holes=False, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()"""
+doc.save()
 
 print("Done")
 print_time_elapsed(start)

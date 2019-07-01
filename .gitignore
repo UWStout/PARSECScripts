@@ -1,3 +1,6 @@
 # Basic starting git ignore
+# Ignore vscode workspace settings
 .vscode
+
+# Ignore all Metashape license files
 *.lic

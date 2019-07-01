@@ -3,3 +3,9 @@
 
 # Ignore all Metashape license files
 *.lic
+
+# Ignore test data
+TestData
+
+# Ignore system files
+.DS_Store

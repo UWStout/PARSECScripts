@@ -6,6 +6,7 @@ import os
 from os import path
 
 # SFB Import the rawpy and imageio packages
+# SFB NOTE: These must be installed with pip
 import rawpy
 import imageio
 

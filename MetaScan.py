@@ -48,15 +48,19 @@ if gpuCount > 0:
 
 #SFB Get reference to the currently active DOM
 doc = Metashape.Document()
-chunk = doc.addChunk()
 
 #AIW Attemtps to open an existing project. 
 # - A new project is created if an existing project is not available.
+# - This must be done immediatly after getting reference to active DOM.
+# - .psx format will not save correctly otherwise.
 try:
     doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
 except:
     print("No document exists!\nCreating a new document.")
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
+
+#AIW Adds a chunk to the current document.
+chunk = doc.addChunk()
 
 #SFB Build the list of image filenames
 images = []

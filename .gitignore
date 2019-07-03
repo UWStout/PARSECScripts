@@ -9,3 +9,6 @@ TestData
 
 # Ignore system files
 .DS_Store
+
+# Ignore compiled python cache
+__pycache__

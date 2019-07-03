@@ -51,7 +51,7 @@ doc = Metashape.Document()
 chunk = doc.addChunk()
 
 #SFB Saves a new project to a directory.
-doc.save("%s%s.psz" %(PATH_TO_IMAGES, IMAGE_PREFIX))
+doc.save("%s%s.psx" %(PATH_TO_IMAGES, IMAGE_PREFIX))
 
 #SFB Build the list of image filenames
 images = []
@@ -71,7 +71,7 @@ phaseTime = time.time()
 PHASE_LABEL = "Adding Photos"
 chunk.addPhotos(images, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]
@@ -83,7 +83,7 @@ phaseTime = time.time()
 PHASE_LABEL = "Masking Photos"
 chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #AIW From API "Create markers from coded targets." 
 # - Detects markers with default settings.
@@ -91,7 +91,7 @@ phaseTime = time.time()
 PHASE_LABEL = "Detecting Markers"
 chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #AIW From API "Perform image matching for the chunk frame." 
 # - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
@@ -102,7 +102,7 @@ phaseTime = time.time()
 PHASE_LABEL = "Matching Photos"
 chunk.matchPhotos(accuracy=Metashape.HighAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(4000), progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #AIW From API "Perform photo alignment for the chunk." 
 # - Second step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points.
@@ -110,27 +110,27 @@ phaseTime = time.time()
 PHASE_LABEL = "Aligning Cameras"
 chunk.alignCameras(progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #SFB Changes the dimensions of the chunk's reconstruction volume.
 NEW_REGION = doc.chunk.region
 NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
-doc.save()
+#doc.save()
 
 #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
 chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.PointCloudData, vertex_colors=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #AIW From API "Generate uv mapping for the model."
 phaseTime = time.time()
 PHASE_LABEL = "UV 3D Model"
 chunk.buildUV(adaptive_resolution=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+#doc.save()
 
 #AIW From API "Generate texture for the chunk." 
 # - Generates a basic texture for the 3D model.
@@ -142,3 +142,6 @@ doc.save()
 
 print("Done")
 print_time_elapsed(start)
+
+#AIW Exits Metashape releasing the lock on the current document.
+#Metashape.app.quit()

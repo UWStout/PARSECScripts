@@ -2,10 +2,10 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkersHQ/"
+PATH_TO_IMAGES = "C:/SimulatedScans/PythonTest-MS/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkersHQ/masks/{filename}_mask.tif"
+PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
@@ -117,19 +117,26 @@ print_time_elapsed(phaseTime)
 doc.save()
 
 #SFB Changes the dimensions of the chunk's reconstruction volume.
+phaseTime = time.time()
+PHASE_LABEL = "Changing Reconstruction Volume dimensions"
 NEW_REGION = doc.chunk.region
 NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
+print_time_elapsed(phaseTime)
 doc.save()
 
-#AIW Steps for generating the Dense Cloud.
-phaseTime = time.time()
-PHASE_LABEL = "Dense Cloud Generation"
 #AIW From API "Generate depth maps for the chunk."
 # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
+phaseTime = time.time()
+PHASE_LABEL = "Building Depth Maps"
 chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, progress=progress_callback)
+print_time_elapsed(phaseTime)
+doc.save
+
 #AIW From API "Generate dense cloud for the chunk."
 # - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
+phaseTime = time.time()
+PHASE_LABEL = "Building Dense Cloud"
 chunk.buildDenseCloud(point_colors=True, keep_depth=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()

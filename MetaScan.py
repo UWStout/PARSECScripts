@@ -50,8 +50,13 @@ if gpuCount > 0:
 doc = Metashape.Document()
 chunk = doc.addChunk()
 
-#SFB Saves a new project to a directory.
-doc.save("%s%s.psz" %(PATH_TO_IMAGES, IMAGE_PREFIX))
+#AIW Attemtps to open an existing project. 
+# - A new project is created if an existing project is not available.
+try:
+    doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
+except:
+    print("No document exists!\nCreating a new document.")
+    doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
 
 #SFB Build the list of image filenames
 images = []
@@ -64,13 +69,6 @@ print(images)
 sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
-
-#AIW From API "Add a list of photos to the chunk." Must be run before getting a reference to camera.
-phaseTime = time.time()
-PHASE_LABEL = "Adding Photos"
-chunk.addPhotos(images, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
 
 #AIW From API "Add a list of photos to the chunk." 
 # - Must be run before getting a reference to camera.
@@ -161,3 +159,6 @@ doc.save()
 
 print("Done")
 print_time_elapsed(start)
+
+#AIW Exits Metashape releasing the lock on the current document.
+#Metashape.app.quit()

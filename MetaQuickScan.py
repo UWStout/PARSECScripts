@@ -2,10 +2,10 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkersHQ/"
+PATH_TO_IMAGES = "C:/SimulatedScans/PythonTest-MS/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/parsec/Data/Sim/Eric/EricMarkersHQ/masks/{filename}_mask.tif"
+PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
@@ -113,9 +113,12 @@ print_time_elapsed(phaseTime)
 #doc.save()
 
 #SFB Changes the dimensions of the chunk's reconstruction volume.
+phaseTime = time.time()
+PHASE_LABEL = "Changing Reconstruction Volume dimensions"
 NEW_REGION = doc.chunk.region
 NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
+print_time_elapsed(phaseTime)
 #doc.save()
 
 #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.

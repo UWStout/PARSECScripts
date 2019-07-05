@@ -2,15 +2,20 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric\EricMarkersHQ/"
+PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/masks/{filename}_mask.tif"
+PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
 import sys
 import time
+
+#AIW Creates a console log.
+# - Currently unable to specify a path or filename.
+# - Will save outside image folder. 
+Metashape.Application.Settings(log_enable=True)
 
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
@@ -151,4 +156,4 @@ print("Done")
 print_time_elapsed(start)
 
 #AIW Exits Metashape releasing the lock on the current document.
-#Metashape.app.quit()
+Metashape.app.quit()

@@ -12,6 +12,11 @@ import Metashape
 import sys
 import time
 
+#AIW Creates a console log.
+# - Currently unable to specify a path or filename.
+# - Will save outside image folder. 
+Metashape.Application.Settings(log_enable=True)
+
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
 def blank_line(length=80):

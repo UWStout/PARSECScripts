@@ -2,10 +2,10 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "C:/SimulatedScans/PythonTest-MS/"
+PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/masks/{filename}_mask.tif"
+PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
@@ -59,50 +59,27 @@ except:
     print("No document exists!\nCreating a new document.")
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
 
-#AIW Adds a chunk to the current document.
-chunk = doc.addChunk()
-
-#SFB Build the list of image filenames
-images = []
-for image in range(1, 121):
-    filename = ("%s%s%04d.tif" %(PATH_TO_IMAGES, IMAGE_PREFIX, image))
-    images.append(filename)
-print(images)
+#AIW Reference chunk in the current document.
+chunk = doc.chunk
 
 #SFB Indicate processing is starting
 sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-#AIW From API "Add a list of photos to the chunk." 
-# - Must be run before getting a reference to camera.
-phaseTime = time.time()
-PHASE_LABEL = "Adding Photos"
-chunk.addPhotos(images, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
-
-#AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
-camera = chunk.cameras[0]
-
-#AIW From API "Import masks for multiple cameras." 
+#AIW The masking step is currently handled by MetaQuickScript. 
+"""#AIW From API "Import masks for multiple cameras." 
 # - Import background images for masking out the background. 
 # - Camera must be referenced for this step to work.
 phaseTime = time.time()
 PHASE_LABEL = "Masking Photos"
 chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+doc.save()"""
 
-#AIW From API "Create markers from coded targets." 
-# - Detects markers with default settings.
-phaseTime = time.time()
-PHASE_LABEL = "Detecting Markers"
-chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
-
-#AIW From API "Perform image matching for the chunk frame." 
+#AIW The HighAccuracy parameter for the matchPhotos function from MetaQuickScan works well.
+# - HighestAccuracy will be tested to see if it is valuable.
+"""#AIW From API "Perform image matching for the chunk frame." 
 # - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
 # - Keypoints and Tiepoints are set to unlimited. 
 # - Accuracy below MediumAccuracy consistently results in failed camera alignment.
@@ -127,7 +104,7 @@ NEW_REGION = doc.chunk.region
 NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
 print_time_elapsed(phaseTime)
-doc.save()
+doc.save()"""
 
 #AIW From API "Generate depth maps for the chunk."
 # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
@@ -172,4 +149,4 @@ print("Done")
 print_time_elapsed(start)
 
 #AIW Exits Metashape releasing the lock on the current document.
-#Metashape.app.quit()
+Metashape.app.quit()

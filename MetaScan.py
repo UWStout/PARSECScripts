@@ -12,10 +12,9 @@ import Metashape
 import sys
 import time
 
-#AIW Creates a console log.
-# - Currently unable to specify a path or filename.
-# - Will save outside image folder. 
-Metashape.Application.Settings(log_enable=True)
+#AIW Creates a console log and saves to same location as images.
+Metashape.app.settings.log_enable = True
+Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)
 
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line

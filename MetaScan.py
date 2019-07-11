@@ -113,9 +113,14 @@ doc.save()"""
 
 #AIW From API "Generate depth maps for the chunk."
 # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
+# - max_neighbors parameter may save time and help with shadows. -1 is none.
 phaseTime = time.time()
 PHASE_LABEL = "Building Depth Maps"
 chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, progress=progress_callback)
+#AIW No image scaling (highly detailed geometry) and will filter fine details.
+#chunk.buildDepthMaps(quality=Metashape.UltraQuality, filter=Metashape.AggressiveFiltering, progress=progress_callback)
+#AIW No image scaling (highly detailed geometry) and will pull all details possible from images.
+#chunk.buildDepthMaps(quality=Metashape.UltraQuality, filter=Metashape.MildFiltering, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save
 
@@ -123,7 +128,7 @@ doc.save
 # - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
 phaseTime = time.time()
 PHASE_LABEL = "Building Dense Cloud"
-chunk.buildDenseCloud(point_colors=True, keep_depth=True, progress=progress_callback)
+chunk.buildDenseCloud(point_colors=True, keep_depth=True, max_neighbors=100, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 
@@ -132,6 +137,10 @@ doc.save()
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
 chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True, progress=progress_callback)
+#AIW volumetric_masks=True will use masks to supress noise. Increases processing time.
+#chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, volumetric_masks=True, keep_depth=True, progress=progress_callback)
+#AIW interpolation=Metashape.DisabledInterpolation will not try to fill holes in geometry. More accurate to source but requires manual post-processing.
+#chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.DisabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 

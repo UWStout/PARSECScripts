@@ -2,10 +2,10 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/"
+PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/Masks/{filename}_mask.tif"
+PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape

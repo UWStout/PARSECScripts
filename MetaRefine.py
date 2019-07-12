@@ -2,10 +2,10 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/"
+PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "D:/OneDrive/Career/jobs/artDesign/2019/Parsec/Data/Sim/Eric/EricMarkersHQ/Masks/{filename}_mask.tif"
+PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
@@ -71,55 +71,12 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-#AIW The masking step is currently handled by MetaQuickScript. 
-"""#AIW From API "Import masks for multiple cameras." 
-# - Import background images for masking out the background. 
-# - Camera must be referenced for this step to work.
-phaseTime = time.time()
-PHASE_LABEL = "Masking Photos"
-chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()"""
-
-#AIW The HighAccuracy parameter for the matchPhotos function from MetaQuickScan works well.
-# - HighestAccuracy will be tested to see if it is valuable.
-"""#AIW From API "Perform image matching for the chunk frame." 
-# - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
-# - Keypoints and Tiepoints are set to unlimited. 
-# - Accuracy below MediumAccuracy consistently results in failed camera alignment.
-phaseTime = time.time()
-PHASE_LABEL = "Matching Photos"
-chunk.matchPhotos(accuracy=Metashape.HighestAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0), progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
-
-#AIW From API "Perform photo alignment for the chunk." 
-# - Second step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points.
-phaseTime = time.time()
-PHASE_LABEL = "Aligning Cameras"
-chunk.alignCameras(progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
-
-#SFB Changes the dimensions of the chunk's reconstruction volume.
-phaseTime = time.time()
-PHASE_LABEL = "Changing Reconstruction Volume dimensions"
-NEW_REGION = doc.chunk.region
-NEW_REGION.size = NEW_REGION.size * 2.0
-doc.chunk.region = NEW_REGION
-print_time_elapsed(phaseTime)
-doc.save()"""
-
 #AIW From API "Generate depth maps for the chunk."
 # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
 # - max_neighbors parameter may save time and help with shadows. -1 is none.
 phaseTime = time.time()
 PHASE_LABEL = "Building Depth Maps"
-chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, progress=progress_callback)
-#AIW No image scaling (highly detailed geometry) and will filter fine details.
-#chunk.buildDepthMaps(quality=Metashape.UltraQuality, filter=Metashape.AggressiveFiltering, progress=progress_callback)
-#AIW No image scaling (highly detailed geometry) and will pull all details possible from images.
-#chunk.buildDepthMaps(quality=Metashape.UltraQuality, filter=Metashape.MildFiltering, progress=progress_callback)
+chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.MildFiltering, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save
 

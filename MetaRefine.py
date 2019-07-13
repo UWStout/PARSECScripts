@@ -2,10 +2,10 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
+PATH_TO_IMAGES = "D:/ParsecExp/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
+PATH_TO_MASKS = "D:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
 import Metashape
@@ -76,7 +76,7 @@ start = time.time()
 # - max_neighbors parameter may save time and help with shadows. -1 is none.
 phaseTime = time.time()
 PHASE_LABEL = "Building Depth Maps"
-chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.MildFiltering, progress=progress_callback)
+chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, max_neighbors=100, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save
 
@@ -93,10 +93,6 @@ doc.save()
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
 chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True, progress=progress_callback)
-#AIW volumetric_masks=True will use masks to supress noise. Increases processing time.
-#chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, volumetric_masks=True, keep_depth=True, progress=progress_callback)
-#AIW interpolation=Metashape.DisabledInterpolation will not try to fill holes in geometry. More accurate to source but requires manual post-processing.
-#chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.DisabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True, progress=progress_callback)
 print_time_elapsed(phaseTime)
 doc.save()
 

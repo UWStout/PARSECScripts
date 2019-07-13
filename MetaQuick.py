@@ -108,7 +108,7 @@ print_time_elapsed(phaseTime)
 # - HighAccuracy is used in this script as the results are better for and the time added is negligible.
 phaseTime = time.time()
 PHASE_LABEL = "Matching Photos"
-chunk.matchPhotos(accuracy=Metashape.HighAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(4000), progress=progress_callback)
+chunk.matchPhotos(accuracy=Metashape.HighestAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0), progress=progress_callback)
 print_time_elapsed(phaseTime)
 #doc.save()
 

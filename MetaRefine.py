@@ -2,17 +2,21 @@
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "D:/ParsecExp/EricMarkersHQ/"
+PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "D:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
+PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
+#AIW Creates a log and saves to same location as images.
+LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
 
 import Metashape
 import sys
 import time
 
-#AIW Creates a console log and saves to same location as images.
+#AIW Saves system output into the LOG.
+sys.stdout = LOG
+# - this portion only applys to scripts run in Metashape GUI
 Metashape.app.settings.log_enable = True
 Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)
 
@@ -59,6 +63,7 @@ doc = Metashape.Document()
 # - .psx format will not save correctly otherwise.
 try:
     doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
+    print("Using existing document.")
 except:
     print("No document exists!\nCreating a new document.")
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
@@ -114,5 +119,5 @@ doc.save()
 print("Done")
 print_time_elapsed(start)
 
-#AIW Exits Metashape releasing the lock on the current document.
-Metashape.app.quit()
+#AIW Exits script and releases the lock on the current document.
+sys.exit()

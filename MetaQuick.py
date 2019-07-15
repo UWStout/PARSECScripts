@@ -7,12 +7,16 @@ IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
 PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
+#AIW Creates a log and saves to same location as images.
+LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
 
 import Metashape
 import sys
 import time
 
-#AIW Creates a console log and saves to same location as images.
+#AIW Saves system output into the LOG.
+sys.stdout = LOG
+# - this portion only applys to scripts run in Metashape GUI
 Metashape.app.settings.log_enable = True
 Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)
 
@@ -53,10 +57,16 @@ if gpuCount > 0:
 #SFB Get reference to the currently active DOM
 doc = Metashape.Document()
 
-#SFB Saves a new project to a directory.
-#AIW This must be done immediatly after getting reference to active DOM.
+#AIW Attemtps to open an existing project. 
+# - A new project is created if an existing project is not available.
+# - This must be done immediatly after getting reference to active DOM.
 # - .psx format will not save correctly otherwise.
-doc.save("%s%s.psx" %(PATH_TO_IMAGES, IMAGE_PREFIX))
+try:
+    doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
+    print("Using existing document.")
+except:
+    print("No document exists!\nCreating a new document.")
+    doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
 
 #AIW Adds a chunk to the current document.
 chunk = doc.addChunk()
@@ -146,5 +156,5 @@ doc.save()
 print("Done")
 print_time_elapsed(start)
 
-#AIW Exits Metashape releasing the lock on the current document.
-Metashape.app.quit()
+#AIW Exits script and releases the lock on the current document.
+sys.exit()

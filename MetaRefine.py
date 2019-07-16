@@ -1,5 +1,9 @@
 """MetaScan is a script for automating the processing of photogrametry data with Metashape for archival use."""
 
+import Metashape
+import sys
+import time
+
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
 PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
@@ -9,10 +13,6 @@ PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 #AIW Creates a log and saves to same location as images.
 LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
-
-import Metashape
-import sys
-import time
 
 #AIW Saves system output into the LOG.
 sys.stdout = LOG

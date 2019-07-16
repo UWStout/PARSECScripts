@@ -1,5 +1,10 @@
 """A script for a quick, "dirty" Metashape scan"""
 
+import Metashape
+import sys
+import time
+import funcTest
+
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
 PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
@@ -9,10 +14,6 @@ PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 #AIW Creates a log and saves to same location as images.
 LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
-
-import Metashape
-import sys
-import time
 
 #AIW Saves system output into the LOG.
 sys.stdout = LOG
@@ -68,8 +69,10 @@ except:
     print("No document exists!\nCreating a new document.")
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
 
-#AIW Adds a chunk to the current document.
-chunk = doc.addChunk()
+"""#AIW Adds a chunk to the current document.
+chunk = doc.addChunk()"""
+
+chunk = doc.chunk
 
 #SFB Build the list of image filenames
 images = []
@@ -93,7 +96,7 @@ print_time_elapsed(phaseTime)
 #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]
 
-#AIW From API "Import masks for multiple cameras." 
+"""#AIW From API "Import masks for multiple cameras." 
 # - Import background images for masking out the background. 
 # - Camera must be referenced for this step to work.
 phaseTime = time.time()
@@ -123,7 +126,7 @@ print_time_elapsed(phaseTime)
 phaseTime = time.time()
 PHASE_LABEL = "Aligning Cameras"
 chunk.alignCameras(progress=progress_callback)
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 
 #SFB Changes the dimensions of the chunk's reconstruction volume.
 phaseTime = time.time()
@@ -133,7 +136,9 @@ NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
 print_time_elapsed(phaseTime)
 
-#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
+funcTest.print_markers()
+
+"""#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
 chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.PointCloudData, vertex_colors=True, progress=progress_callback)
@@ -150,7 +155,7 @@ print_time_elapsed(phaseTime)
 phaseTime = time.time()
 PHASE_LABEL = "Generate Texture"
 chunk.buildTexture(blending=Metashape.MosaicBlending, size=(1024), fill_holes=False, progress=progress_callback)
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 doc.save()
 
 print("Done")

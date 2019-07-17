@@ -4,6 +4,7 @@ import Metashape
 import sys
 import time
 import MetaGPU
+import MetaWork
 #import logging
 import MetaUtils
 import funcTest
@@ -85,7 +86,7 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-"""#AIW From API "Add a list of photos to the chunk." 
+#AIW From API "Add a list of photos to the chunk." 
 # - Must be run before getting a reference to camera.
 phaseTime = time.time()
 PHASE_LABEL = "Adding Photos"
@@ -95,7 +96,7 @@ print_time_elapsed(phaseTime)
 #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]
 
-#AIW From API "Import masks for multiple cameras." 
+"""#AIW From API "Import masks for multiple cameras." 
 # - Import background images for masking out the background. 
 # - Camera must be referenced for this step to work.
 phaseTime = time.time()
@@ -108,9 +109,11 @@ print_time_elapsed(phaseTime)
 phaseTime = time.time()
 PHASE_LABEL = "Detecting Markers"
 chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5, progress=progress_callback)
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 
-#AIW From API "Perform image matching for the chunk frame." 
+MetaWork.quick_align(chunk)
+
+"""#AIW From API "Perform image matching for the chunk frame." 
 # - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
 # - Keypoints and Tiepoints for this script is Agisoft's suggested default. 
 # - Accuracy below MediumAccuracy consistently results in failed camera alignment.
@@ -125,9 +128,9 @@ print_time_elapsed(phaseTime)
 phaseTime = time.time()
 PHASE_LABEL = "Aligning Cameras"
 chunk.alignCameras(progress=progress_callback)
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 
-#SFB Changes the dimensions of the chunk's reconstruction volume.
+"""#SFB Changes the dimensions of the chunk's reconstruction volume.
 phaseTime = time.time()
 PHASE_LABEL = "Changing Reconstruction Volume dimensions"
 NEW_REGION = doc.chunk.region
@@ -156,7 +159,7 @@ print_time_elapsed(phaseTime)"""
 doc.save()
 
 #MetaUtils.print_markers
-funcTest.print_markers
+funcTest.print_markers(chunk)
 
 print("Done")
 print_time_elapsed(start)

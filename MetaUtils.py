@@ -7,7 +7,16 @@ import logging
 
 PHASE_LABEL = "none"
 
-#SFB Erase the current line by printing spaces
+"""#AIW Check compatibility. From public Agisoft scripts.
+def compat():
+    compatible_major_version = "1.5"
+    found_major_version = ".".join(Metashape.app.version.split('.')[:2])
+    if found_major_version != compatible_major_version:
+        raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
+    else:
+        print ((found_major_version)+(" OK"))"""
+
+"""#SFB Erase the current line by printing spaces
 # - Does not advance to the next line
 def blank_line(length=80):
     empty = " " * length
@@ -27,7 +36,18 @@ def start_time():
     #SFB Indicate processing is starting
     sys.stdout.flush()
     print("\nStarting processing:")
-    start = time.time()
+    start = time.time()"""
 
-def log(PATH_TO_IMAGES):
-    logging.basicConfig(filename="{}log.txt", level=logging.INFO)
+#AIW Creates a log text file.
+def log(PATH_TO_IMAGES, IMAGE_PREFIX):
+    logging.basicConfig(filename="{}{}_log.txt" .format(PATH_TO_IMAGES, IMAGE_PREFIX), level=logging.INFO)
+
+#AIW Gets marker info.
+def print_markers(chunk):
+    for marker in chunk.markers:
+        #XYZ coords?
+        print(marker.position)
+        #Key in dictionary
+        print(marker.key)
+        #These are the label names shown in Metashape GUI
+        print(marker.label)

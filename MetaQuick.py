@@ -3,23 +3,30 @@
 import Metashape
 import sys
 import time
+import MetaGPU
+#import logging
+import MetaUtils
 import funcTest
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
+PATH_TO_IMAGES = "C:/SimulatedScans/PythonTest-MS/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
+PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
-#AIW Creates a log and saves to same location as images.
+"""#AIW Creates a log and saves to same location as images.
 LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
 
 #AIW Saves system output into the LOG.
 sys.stdout = LOG
 # - this portion only applys to scripts run in Metashape GUI
 Metashape.app.settings.log_enable = True
-Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)
+Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)"""
+
+MetaUtils.log
+
+#logging.basicConfig(filename="{}log.txt", level=logging.INFO)
 
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
@@ -45,15 +52,10 @@ if found_major_version != compatible_major_version:
 else:
     print ((found_major_version)+(" OK"))
 
-#SFB Get number of GPUs available
-gpuList = Metashape.app.enumGPUDevices()
-gpuCount = len(gpuList)
+#MetaUtils.compat
 
-#SFB Enable all GPUs
-if gpuCount > 0:
-    print("Enabling %d GPUs" %(gpuCount))
-    Metashape.app.gpu_mask = 2**gpuCount - 1
-    Metashape.app.cpu_enable = False
+#AIW Enables GUP processing.
+MetaGPU.use_gpu()
 
 #SFB Get reference to the currently active DOM
 doc = Metashape.Document()
@@ -65,14 +67,11 @@ doc = Metashape.Document()
 try:
     doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
     print("Using existing document.")
+    chunk = doc.chunk
 except:
     print("No document exists!\nCreating a new document.")
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
-
-"""#AIW Adds a chunk to the current document.
-chunk = doc.addChunk()"""
-
-chunk = doc.chunk
+    chunk = doc.addChunk()
 
 #SFB Build the list of image filenames
 images = []
@@ -86,7 +85,7 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-#AIW From API "Add a list of photos to the chunk." 
+"""#AIW From API "Add a list of photos to the chunk." 
 # - Must be run before getting a reference to camera.
 phaseTime = time.time()
 PHASE_LABEL = "Adding Photos"
@@ -96,7 +95,7 @@ print_time_elapsed(phaseTime)
 #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]
 
-"""#AIW From API "Import masks for multiple cameras." 
+#AIW From API "Import masks for multiple cameras." 
 # - Import background images for masking out the background. 
 # - Camera must be referenced for this step to work.
 phaseTime = time.time()
@@ -126,7 +125,7 @@ print_time_elapsed(phaseTime)
 phaseTime = time.time()
 PHASE_LABEL = "Aligning Cameras"
 chunk.alignCameras(progress=progress_callback)
-print_time_elapsed(phaseTime)"""
+print_time_elapsed(phaseTime)
 
 #SFB Changes the dimensions of the chunk's reconstruction volume.
 phaseTime = time.time()
@@ -136,9 +135,7 @@ NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
 print_time_elapsed(phaseTime)
 
-funcTest.print_markers()
-
-"""#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
+#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
 chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.PointCloudData, vertex_colors=True, progress=progress_callback)
@@ -157,6 +154,9 @@ PHASE_LABEL = "Generate Texture"
 chunk.buildTexture(blending=Metashape.MosaicBlending, size=(1024), fill_holes=False, progress=progress_callback)
 print_time_elapsed(phaseTime)"""
 doc.save()
+
+#MetaUtils.print_markers
+funcTest.print_markers
 
 print("Done")
 print_time_elapsed(start)

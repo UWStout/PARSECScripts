@@ -1,13 +1,10 @@
 import Metashape
 
-doc = Metashape.app.document
-chunk = doc.chunk
-
-def print_markers():
+def print_markers(chunk):
     for marker in chunk.markers:
         #XYZ coords?
         print(marker.position)
-        #Key in dictionary?
+        #Key in dictionary
         print(marker.key)
         #These are the label names shown in Metashape GUI
         print(marker.label)

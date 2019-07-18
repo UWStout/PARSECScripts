@@ -7,13 +7,15 @@ import logging
 
 compatible_major_version = "1.5"
 
-#AIW Check compatibility. From public Agisoft scripts.
+#AIW Check compatibility. Modified from public Agisoft scripts.
 def compat(metashapeVersionString):
     found_major_version = ".".join(metashapeVersionString.split('.')[:2])
     if found_major_version != compatible_major_version:
         raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
+        logging.warning("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
     else:
         print ((found_major_version)+(" OK"))
+        logging.info(("Metashape version: ")+(found_major_version)+(" OK"))
 
 """PHASE_LABEL = "none"
 #SFB Erase the current line by printing spaces
@@ -41,10 +43,6 @@ def start_time():
 #AIW Creates a log text file.
 def log(PATH_TO_IMAGES, IMAGE_PREFIX):
     logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), level=logging.INFO)
-
-"""#AIW Creates a script log and saves to same location as images.
-def log(PATH_TO_IMAGES, IMAGE_PREFIX):
-        sys.stdout = open("{}{}_SLog.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')"""
 
 #AIW Enables GPU processing in Metashape.
 def use_gpu():

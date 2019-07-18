@@ -76,7 +76,7 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-#MetaUtils.image_list(chunk,PATH_TO_IMAGES, IMAGE_PREFIX)
+MetaUtils.image_list(chunk,PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
 

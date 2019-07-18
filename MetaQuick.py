@@ -13,14 +13,6 @@ IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
 PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
-"""#AIW Creates a log and saves to same location as images.
-LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
-
-#AIW Saves system output into the LOG.
-sys.stdout = LOG
-# - this portion only applys to scripts run in Metashape GUI
-Metashape.app.settings.log_enable = True
-Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)"""
 
 MetaUtils.log(PATH_TO_IMAGES, IMAGE_PREFIX)
 
@@ -40,19 +32,10 @@ def progress_callback(prog):
 def print_time_elapsed(startTime):
     print("\nElapsed Time: %.2fsecs" %(time.time() - startTime))
 
+#AIW Check compatibility.
 MetaUtils.compat(Metashape.app.version)
 
-# #AIW Check compatibility. From public Agisoft scripts.
-# compatible_major_version = "1.5"
-# found_major_version = ".".join(Metashape.app.version.split('.')[:2])
-# if found_major_version != compatible_major_version:
-#     raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
-# else:
-#     print ((found_major_version)+(" OK"))
-
-#MetaUtils.compat
-
-#AIW Enables GUP processing.
+#AIW Enables GPU processing in Metashape.
 MetaUtils.use_gpu()
 
 #SFB Get reference to the currently active DOM
@@ -76,9 +59,11 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-MetaUtils.image_list(chunk,PATH_TO_IMAGES, IMAGE_PREFIX)
+#AIW Creates an image list and adds them to the current chunk.
+#MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
 
-#MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
+#AIW Automaticaly creates masks.
+MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
 
 """#AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]

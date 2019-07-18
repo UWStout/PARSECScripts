@@ -5,18 +5,18 @@ import sys
 import time
 import logging
 
-PHASE_LABEL = "none"
+compatible_major_version = "1.5"
 
-"""#AIW Check compatibility. From public Agisoft scripts.
-def compat():
-    compatible_major_version = "1.5"
-    found_major_version = ".".join(Metashape.app.version.split('.')[:2])
+#AIW Check compatibility. From public Agisoft scripts.
+def compat(metashapeVersionString):
+    found_major_version = ".".join(metashapeVersionString.split('.')[:2])
     if found_major_version != compatible_major_version:
         raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
     else:
-        print ((found_major_version)+(" OK"))"""
+        print ((found_major_version)+(" OK"))
 
-"""#SFB Erase the current line by printing spaces
+"""PHASE_LABEL = "none"
+#SFB Erase the current line by printing spaces
 # - Does not advance to the next line
 def blank_line(length=80):
     empty = " " * length
@@ -40,14 +40,81 @@ def start_time():
 
 #AIW Creates a log text file.
 def log(PATH_TO_IMAGES, IMAGE_PREFIX):
-    logging.basicConfig(filename="{}{}_log.txt" .format(PATH_TO_IMAGES, IMAGE_PREFIX), level=logging.INFO)
+    logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), level=logging.INFO)
+
+"""#AIW Creates a script log and saves to same location as images.
+def log(PATH_TO_IMAGES, IMAGE_PREFIX):
+        sys.stdout = open("{}{}_SLog.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')"""
+
+#AIW Enables GPU processing in Metashape.
+def use_gpu():
+    #SFB Get number of GPUs available
+    gpuList = Metashape.app.enumGPUDevices()
+    gpuCount = len(gpuList)
+
+    #SFB Enable all GPUs
+    if gpuCount > 0:
+        print("Enabling %d GPUs" %(gpuCount))
+        Metashape.app.gpu_mask = 2**gpuCount - 1
+        Metashape.app.cpu_enable = False
+        print("Done")
+        logging.info("Enabled %d GPUs" %(gpuCount))
+
+#AIW Automates correction processes for the chunk.
+def chunk_correct(doc, chunk):
+    #SFB Changes the dimensions of the chunk's reconstruction volume.
+    print("Correcting chunk")
+    NEW_REGION = doc.chunk.region
+    NEW_REGION.size = NEW_REGION.size * 2.0
+    doc.chunk.region = NEW_REGION
+    print("Done")
+    logging.info("Corrected chunk")
+
+#AIW Creates an image list and adds them to the current chunk.
+def image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX):
+    #SFB Build the list of image filenames
+    images = []
+
+    print("Creating image list")
+    for image in range(1, 121):
+        filename = ("%s%s%04d.tif" %(PATH_TO_IMAGES, IMAGE_PREFIX, image))
+        images.append(filename)
+    print(images)
+
+    #AIW From API "Add a list of photos to the chunk." 
+    chunk.addPhotos(images)
+    print("Done")
+    logging.info("Created image list")
+    logging.info(images)
+
+#AIW Automates masking.
+def auto_mask(chunk, PATH_TO_MASKS):
+    #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
+    camera = chunk.cameras[0]
+    print("Creating masks")
+
+    #AIW From API "Import masks for multiple cameras." 
+    # - Import background images for masking out the background. 
+    # - Camera must be referenced for this step to work.
+    chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10)
+    print("Done")
+    logging.info("Auto masking successful")
+
+#AIW Places markers on coded targets in images.
+def place_markers(chunk):
+        print("Placing markers")
+        chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5)
+        print("Done")
+        logging.info("Markers placed")
 
 #AIW Gets marker info.
 def print_markers(chunk):
     for marker in chunk.markers:
+        print("Getting marker info")
         #XYZ coords?
         print(marker.position)
         #Key in dictionary
         print(marker.key)
         #These are the label names shown in Metashape GUI
         print(marker.label)
+        print("Done")

@@ -40,18 +40,20 @@ def progress_callback(prog):
 def print_time_elapsed(startTime):
     print("\nElapsed Time: %.2fsecs" %(time.time() - startTime))
 
-#AIW Check compatibility. From public Agisoft scripts.
-compatible_major_version = "1.5"
-found_major_version = ".".join(Metashape.app.version.split('.')[:2])
-if found_major_version != compatible_major_version:
-    raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
-else:
-    print ((found_major_version)+(" OK"))
+MetaUtils.compat(Metashape.app.version)
+
+# #AIW Check compatibility. From public Agisoft scripts.
+# compatible_major_version = "1.5"
+# found_major_version = ".".join(Metashape.app.version.split('.')[:2])
+# if found_major_version != compatible_major_version:
+#     raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
+# else:
+#     print ((found_major_version)+(" OK"))
 
 #MetaUtils.compat
 
 #AIW Enables GUP processing.
-MetaUtils.use_gpu
+MetaUtils.use_gpu()
 
 #SFB Get reference to the currently active DOM
 doc = Metashape.Document()
@@ -74,20 +76,9 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-MetaUtils.image_list(chunk,PATH_TO_IMAGES, IMAGE_PREFIX)
-"""#SFB Build the list of image filenames
-images = []
-for image in range(1, 121):
-    filename = ("%s%s%04d.tif" %(PATH_TO_IMAGES, IMAGE_PREFIX, image))
-    images.append(filename)
-print(images)
+#MetaUtils.image_list(chunk,PATH_TO_IMAGES, IMAGE_PREFIX)
 
-#AIW From API "Add a list of photos to the chunk." 
-# - Must be run before getting a reference to camera.
-phaseTime = time.time()
-PHASE_LABEL = "Adding Photos"
-chunk.addPhotos(images, progress=progress_callback)
-print_time_elapsed(phaseTime)"""
+#MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
 
 """#AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]

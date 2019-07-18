@@ -3,10 +3,8 @@
 import Metashape
 import sys
 import time
-import MetaGPU
 import MetaWork
 import MetaUtils
-import funcTest
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
@@ -109,7 +107,7 @@ PHASE_LABEL = "Detecting Markers"
 chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5, progress=progress_callback)
 print_time_elapsed(phaseTime)"""
 
-MetaWork.quick_align(chunk)
+#MetaWork.quick_align(chunk)
 
 """#AIW From API "Perform image matching for the chunk frame." 
 # - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
@@ -155,9 +153,6 @@ PHASE_LABEL = "Generate Texture"
 chunk.buildTexture(blending=Metashape.MosaicBlending, size=(1024), fill_holes=False, progress=progress_callback)
 print_time_elapsed(phaseTime)"""
 doc.save()
-
-#MetaUtils.print_markers
-funcTest.print_markers(chunk)
 
 print("Done")
 print_time_elapsed(start)

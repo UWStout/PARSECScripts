@@ -60,26 +60,19 @@ print("\nStarting processing:")
 start = time.time()
 
 #AIW Creates an image list and adds them to the current chunk.
-MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
+#MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
 
-#AIW Automaticaly creates masks.
-MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
+#AIW Creates masks.
+#MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
 
-#AIW Automaticaly aligns photos.
-MetaWork.quick_align(chunk)
+#AIW Aligns photos.
+#MetaWork.quick_align(chunk)
 
-#AIW Automaticaly corrects the chunk.
-MetaUtils.chunk_correct(doc, chunk)
+#AIW Corrects the chunk.
+#MetaUtils.chunk_correct(doc, chunk)
 
-"""#SFB Changes the dimensions of the chunk's reconstruction volume.
-phaseTime = time.time()
-PHASE_LABEL = "Changing Reconstruction Volume dimensions"
-NEW_REGION = doc.chunk.region
-NEW_REGION.size = NEW_REGION.size * 2.0
-doc.chunk.region = NEW_REGION
-print_time_elapsed(phaseTime)"""
-
-#MetaWork.quick_model(chunk)
+#AIW Creats a quick model.
+MetaWork.quick_model(chunk)
 
 """#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
 phaseTime = time.time()

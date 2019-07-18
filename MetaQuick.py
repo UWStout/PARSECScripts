@@ -22,7 +22,7 @@ sys.stdout = LOG
 Metashape.app.settings.log_enable = True
 Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)"""
 
-MetaUtils.log
+MetaUtils.log(PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
@@ -51,7 +51,7 @@ else:
 #MetaUtils.compat
 
 #AIW Enables GUP processing.
-MetaGPU.use_gpu()
+MetaUtils.use_gpu
 
 #SFB Get reference to the currently active DOM
 doc = Metashape.Document()

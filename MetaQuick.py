@@ -14,6 +14,7 @@ IMAGE_PREFIX = "EricMarkers"
 PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
 
+#AIW Creates a log.
 MetaUtils.log(PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #SFB Erase the current line by printing spaces
@@ -60,7 +61,7 @@ print("\nStarting processing:")
 start = time.time()
 
 #AIW Creates an image list and adds them to the current chunk.
-#MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
+MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #AIW Creates masks.
 #MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
@@ -72,7 +73,7 @@ start = time.time()
 #MetaUtils.chunk_correct(doc, chunk)
 
 #AIW Creats a quick model.
-MetaWork.quick_model(chunk)
+#MetaWork.quick_model(chunk)
 
 """#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
 phaseTime = time.time()

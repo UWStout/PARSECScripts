@@ -42,7 +42,8 @@ def start_time():
 
 #AIW Creates a log text file.
 def log(PATH_TO_IMAGES, IMAGE_PREFIX):
-    logging.basicConfig(filename="%s%s_log.txt" %(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(messages)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+    #logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(messages)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+    logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(messages)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 #AIW Enables GPU processing in Metashape.
 def use_gpu():

@@ -60,7 +60,9 @@ sys.stdout.flush()
 print("\nStarting processing:")
 start = time.time()
 
-#AIW From API "Generate depth maps for the chunk."
+MetaWork.genUse_dense_cloud(chunk)
+
+"""#AIW From API "Generate depth maps for the chunk."
 # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
 # - max_neighbors parameter may save time and help with shadows. -1 is none.
 phaseTime = time.time()
@@ -75,9 +77,9 @@ phaseTime = time.time()
 PHASE_LABEL = "Building Dense Cloud"
 chunk.buildDenseCloud(point_colors=True, keep_depth=True, max_neighbors=100, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+doc.save()"""
 
-#AIW From API "Generate model for the chunk frame." 
+"""#AIW From API "Generate model for the chunk frame." 
 # - Builds mesh to be used for next steps.
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
@@ -98,7 +100,7 @@ phaseTime = time.time()
 PHASE_LABEL = "Generate Texture"
 chunk.buildTexture(blending=Metashape.MosaicBlending, size=(4096), fill_holes=False, progress=progress_callback)
 print_time_elapsed(phaseTime)
-doc.save()
+doc.save()"""
 
 print("Done")
 print_time_elapsed(start)

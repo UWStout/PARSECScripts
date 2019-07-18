@@ -35,3 +35,31 @@ def quick_model(chunk):
     chunk.buildTexture(blending=Metashape.MosaicBlending, size=(1024), fill_holes=False)
     print ("Done")
     logging.info("Done")
+
+#AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for general use.
+def gen_dense_cloud(chunk):
+    #AIW From API "Generate depth maps for the chunk."
+    # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
+    # - max_neighbors parameter may save time and help with shadows. -1 is none.
+    print("Building Depth Maps")
+    chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, max_neighbors=100)
+
+    #AIW From API "Generate dense cloud for the chunk."
+    # - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
+    print("Building Dense Cloud")
+    chunk.buildDenseCloud(point_colors=True, keep_depth=True, max_neighbors=100)
+
+    #AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for general use.
+
+#AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for archival use.
+def arch_dense_cloud(chunk):
+    #AIW From API "Generate depth maps for the chunk."
+    # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
+    # - max_neighbors parameter may save time and help with shadows. -1 is none.
+    print("Building Depth Maps")
+    chunk.buildDepthMaps(quality=Metashape.HighestQuality, filter=Metashape.AggressiveFiltering, max_neighbors=100)
+
+    #AIW From API "Generate dense cloud for the chunk."
+    # - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
+    print("Building Dense Cloud")
+    chunk.buildDenseCloud(point_colors=True, keep_depth=True, max_neighbors=100)

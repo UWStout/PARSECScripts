@@ -60,49 +60,16 @@ print("\nStarting processing:")
 start = time.time()
 
 #AIW Creates an image list and adds them to the current chunk.
-#MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
+MetaUtils.image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #AIW Automaticaly creates masks.
 MetaUtils.auto_mask(chunk, PATH_TO_MASKS)
 
-"""#AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
-camera = chunk.cameras[0]
+#AIW Automaticaly aligns photos.
+MetaWork.quick_align(chunk)
 
-#AIW From API "Import masks for multiple cameras." 
-# - Import background images for masking out the background. 
-# - Camera must be referenced for this step to work.
-phaseTime = time.time()
-PHASE_LABEL = "Masking Photos"
-chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10, progress=progress_callback)
-print_time_elapsed(phaseTime)"""
-
-"""#AIW From API "Create markers from coded targets." 
-# - Detects markers with default settings.
-phaseTime = time.time()
-PHASE_LABEL = "Detecting Markers"
-chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5, progress=progress_callback)
-print_time_elapsed(phaseTime)"""
-
-#MetaWork.quick_align(chunk)
-
-"""#AIW From API "Perform image matching for the chunk frame." 
-# - First step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points. 
-# - Keypoints and Tiepoints for this script is Agisoft's suggested default. 
-# - Accuracy below MediumAccuracy consistently results in failed camera alignment.
-# - HighAccuracy is used in this script as the results are better for and the time added is negligible.
-phaseTime = time.time()
-PHASE_LABEL = "Matching Photos"
-chunk.matchPhotos(accuracy=Metashape.HighAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(4000), progress=progress_callback)
-print_time_elapsed(phaseTime)
-
-#AIW From API "Perform photo alignment for the chunk." 
-# - Second step of the Metashape GUI "Workflow" process called "Align Photos", which generates the Sparse Cloud/Tie Points.
-phaseTime = time.time()
-PHASE_LABEL = "Aligning Cameras"
-chunk.alignCameras(progress=progress_callback)
-print_time_elapsed(phaseTime)"""
-
-#MetaUtils.chunk_correct(doc, chunk)
+#AIW Automaticaly corrects the chunk.
+MetaUtils.chunk_correct(doc, chunk)
 
 """#SFB Changes the dimensions of the chunk's reconstruction volume.
 phaseTime = time.time()

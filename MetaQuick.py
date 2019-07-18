@@ -1,11 +1,10 @@
-"""A script for a quick, "dirty" Metashape scan"""
+"""A script for quick, "dirty" Metashape results"""
 
 import Metashape
 import sys
 import time
 import MetaGPU
 import MetaWork
-#import logging
 import MetaUtils
 import funcTest
 
@@ -26,8 +25,6 @@ Metashape.app.settings.log_enable = True
 Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)"""
 
 MetaUtils.log
-
-#logging.basicConfig(filename="{}log.txt", level=logging.INFO)
 
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
@@ -74,37 +71,38 @@ except:
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
     chunk = doc.addChunk()
 
-#SFB Build the list of image filenames
+#SFB Indicate processing is starting
+sys.stdout.flush()
+print("\nStarting processing:")
+start = time.time()
+
+MetaUtils.image_list(chunk,PATH_TO_IMAGES, IMAGE_PREFIX)
+"""#SFB Build the list of image filenames
 images = []
 for image in range(1, 121):
     filename = ("%s%s%04d.tif" %(PATH_TO_IMAGES, IMAGE_PREFIX, image))
     images.append(filename)
 print(images)
 
-#SFB Indicate processing is starting
-sys.stdout.flush()
-print("\nStarting processing:")
-start = time.time()
-
 #AIW From API "Add a list of photos to the chunk." 
 # - Must be run before getting a reference to camera.
 phaseTime = time.time()
 PHASE_LABEL = "Adding Photos"
 chunk.addPhotos(images, progress=progress_callback)
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 
-#AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
+"""#AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
 camera = chunk.cameras[0]
 
-"""#AIW From API "Import masks for multiple cameras." 
+#AIW From API "Import masks for multiple cameras." 
 # - Import background images for masking out the background. 
 # - Camera must be referenced for this step to work.
 phaseTime = time.time()
 PHASE_LABEL = "Masking Photos"
 chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10, progress=progress_callback)
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 
-#AIW From API "Create markers from coded targets." 
+"""#AIW From API "Create markers from coded targets." 
 # - Detects markers with default settings.
 phaseTime = time.time()
 PHASE_LABEL = "Detecting Markers"

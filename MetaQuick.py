@@ -57,7 +57,7 @@ except:
 
 #SFB Indicate processing is starting
 sys.stdout.flush()
-print("\nStarting processing:")
+print("Starting processing:")
 start = time.time()
 
 #AIW Creates an image list and adds them to the current chunk.

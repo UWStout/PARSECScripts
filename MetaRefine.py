@@ -3,6 +3,8 @@
 import Metashape
 import sys
 import time
+import MetaWork
+import MetaUtils
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
@@ -11,14 +13,9 @@ IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
 PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
 PHASE_LABEL = "none"
-#AIW Creates a log and saves to same location as images.
-LOG = open("{}{}_log.txt".format(PATH_TO_IMAGES,IMAGE_PREFIX), 'w')
 
-#AIW Saves system output into the LOG.
-sys.stdout = LOG
-# - this portion only applys to scripts run in Metashape GUI
-Metashape.app.settings.log_enable = True
-Metashape.app.settings.log_path = "{}/log.txt" .format(PATH_TO_IMAGES)
+#AIW Creates a log.
+MetaUtils.log(PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
@@ -36,23 +33,11 @@ def progress_callback(prog):
 def print_time_elapsed(startTime):
     print("\nElapsed Time: %.2fsecs" %(time.time() - startTime))
 
-#AIW Check compatibility. From public Agisoft scripts.
-compatible_major_version = "1.5"
-found_major_version = ".".join(Metashape.app.version.split('.')[:2])
-if found_major_version != compatible_major_version:
-    raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
-else:
-    print ((found_major_version)+(" OK"))
+#AIW Check compatibility.
+MetaUtils.compat(Metashape.app.version)
 
-#SFB Get number of GPUs available
-gpuList = Metashape.app.enumGPUDevices()
-gpuCount = len(gpuList)
-
-#SFB Enable all GPUs
-if gpuCount > 0:
-    print("Enabling %d GPUs" %(gpuCount))
-    Metashape.app.gpu_mask = 2**gpuCount - 1
-    Metashape.app.cpu_enable = False
+#AIW Enables GPU processing in Metashape.
+MetaUtils.use_gpu()
 
 #SFB Get reference to the currently active DOM
 doc = Metashape.Document()
@@ -64,12 +49,11 @@ doc = Metashape.Document()
 try:
     doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
     print("Using existing document.")
+    chunk = doc.chunk
 except:
     print("No document exists!\nCreating a new document.")
     doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
-
-#AIW Reference chunk in the current document.
-chunk = doc.chunk
+    chunk = doc.addChunk()
 
 #SFB Indicate processing is starting
 sys.stdout.flush()

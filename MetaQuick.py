@@ -102,15 +102,19 @@ PHASE_LABEL = "Aligning Cameras"
 chunk.alignCameras(progress=progress_callback)
 print_time_elapsed(phaseTime)"""
 
+#MetaUtils.chunk_correct(doc, chunk)
+
 """#SFB Changes the dimensions of the chunk's reconstruction volume.
 phaseTime = time.time()
 PHASE_LABEL = "Changing Reconstruction Volume dimensions"
 NEW_REGION = doc.chunk.region
 NEW_REGION.size = NEW_REGION.size * 2.0
 doc.chunk.region = NEW_REGION
-print_time_elapsed(phaseTime)
+print_time_elapsed(phaseTime)"""
 
-#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
+#MetaWork.quick_model(chunk)
+
+"""#AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
 phaseTime = time.time()
 PHASE_LABEL = "3D Model"
 chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.PointCloudData, vertex_colors=True, progress=progress_callback)

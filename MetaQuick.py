@@ -17,8 +17,8 @@ PHASE_LABEL = "none"
 #AIW Creates a log.
 MetaUtils.log(PATH_TO_IMAGES, IMAGE_PREFIX)
 
-#AIW Check compatibility.
-MetaUtils.compat(Metashape.app.version)
+#AIW Check Metashape version compatibility.
+MetaUtils.check_ver(Metashape.app.version)
 
 #AIW Enables GPU processing in Metashape.
 MetaUtils.use_gpu()

@@ -5,10 +5,10 @@ import sys
 import time
 import logging
 
+#AIW Check compatibility. Modified from public Agisoft scripts.
 compatible_major_version = "1.5"
 
-#AIW Check compatibility. Modified from public Agisoft scripts.
-def compat(metashapeVersionString):
+def check_ver(metashapeVersionString):
     found_major_version = ".".join(metashapeVersionString.split('.')[:2])
     if found_major_version != compatible_major_version:
         raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
@@ -16,8 +16,28 @@ def compat(metashapeVersionString):
     else:
         print ((found_major_version)+(" OK"))
         logging.info(("Metashape version: ")+(found_major_version)+(" OK"))
+"""
+#AIW Manages loading, creating, and saving .psx documents.
+def doc_mngr(PATH_TO_IMAGES, IMAGE_PREFIX):
+        #SFB Get reference to the currently active DOM
+        doc = Metashape.Document()
 
-"""PHASE_LABEL = "none"
+        #AIW Attemtps to open an existing project. 
+        # - A new project is created if an existing project is not available.
+        # - This must be done immediatly after getting reference to active DOM.
+        # - .psx format will not save correctly otherwise.
+        try:
+                doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
+                print("Using existing document.")
+                chunk = doc.chunk
+        except:
+                print("No document exists!\nCreating a new document.")
+                doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
+                chunk = doc.addChunk()
+"""
+
+"""
+PHASE_LABEL = "none"
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
 def blank_line(length=80):
@@ -38,14 +58,15 @@ def start_time():
     #SFB Indicate processing is starting
     sys.stdout.flush()
     print("\nStarting processing:")
-    start = time.time()"""
+    start = time.time()
+"""
 
 #AIW Creates a log text file.
 def log(PATH_TO_IMAGES, IMAGE_PREFIX):
     #logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
     PATH = "{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX)
     
-    logging.basicConfig(filename=PATH ,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+    logging.basicConfig(filename=PATH ,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
 #AIW Enables GPU processing in Metashape.
 def use_gpu():

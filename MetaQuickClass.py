@@ -9,10 +9,10 @@ from MetaUtilsClass import MetaUtils
 
 #AIW Change this path to where user has their scan data stored. Create a folder 
 # in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "C:/SimulatedScans/PythonTest-MS/"
-IMAGE_PREFIX = "EricMarkers"
+PATH_TO_IMAGES = "/Volumes/Samsung_T5/SimulatedScans/Reconstruct/Images/"
+IMAGE_PREFIX = "EricMarkersHQ"
 #AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "C:/SimulatedScans/PythonTest-MS/Masks/{filename}_mask.tif"
+PATH_TO_MASKS = "/Volumes/Samsung_T5/SimulatedScans/Reconstruct/Background/Background{filename}.tif"
 
 #SFB These functions are static and can be called with just the module class name
 MetaUtils.CHECK_VER(Metashape.app.version)

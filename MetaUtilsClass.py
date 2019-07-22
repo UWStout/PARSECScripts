@@ -27,15 +27,15 @@ class MetaUtils:
     self.imagePath = path
     self.namePrefix = prefix
 
-    # Initialize logging
-    self.initLog()
-
     # Check that we have a valid Document
     if self.doc is None:
       self.initDoc()
     else:
       self.imagePath, self.namePrefix = os.path.split(self.doc.path)
       self.namePrefix, extension = os.path.splitext(self.namePrefix)
+
+    # Initialize logging
+    self.initLog()
 
     # Get reference to active chunk
     self.chunk = self.doc.chunk

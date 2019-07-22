@@ -17,7 +17,7 @@ class MetaUtils:
   IMAGE_FILE_EXTENSION_LIST = ('.jpg', '.jpeg', '.png', '.tif', '.tiff')
 
   """ Construct a new MetaUtils object with the given Metashape Document """
-  def _init_(self, doc, path = "", prefix = ""):
+  def __init__(self, doc, path = "", prefix = ""):
     # Check that all needed information was supplied
     if path == "" and prefix == "" and doc is None:
       raise Exception('You must supply either an existing Metashape.Document or the path and prefix to make one.')

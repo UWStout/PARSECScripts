@@ -5,10 +5,10 @@ import sys
 import time
 import logging
 
+#AIW Check compatibility. Modified from public Agisoft scripts.
 compatible_major_version = "1.5"
 
-#AIW Check compatibility. Modified from public Agisoft scripts.
-def compat(metashapeVersionString):
+def check_ver(metashapeVersionString):
     found_major_version = ".".join(metashapeVersionString.split('.')[:2])
     if found_major_version != compatible_major_version:
         raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
@@ -16,8 +16,28 @@ def compat(metashapeVersionString):
     else:
         print ((found_major_version)+(" OK"))
         logging.info(("Metashape version: ")+(found_major_version)+(" OK"))
+"""
+#AIW Manages loading, creating, and saving .psx documents.
+def doc_mngr(PATH_TO_IMAGES, IMAGE_PREFIX):
+        #SFB Get reference to the currently active DOM
+        doc = Metashape.Document()
 
-"""PHASE_LABEL = "none"
+        #AIW Attemtps to open an existing project. 
+        # - A new project is created if an existing project is not available.
+        # - This must be done immediatly after getting reference to active DOM.
+        # - .psx format will not save correctly otherwise.
+        try:
+                doc.open("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX), read_only=False, ignore_lock=True)
+                print("Using existing document.")
+                chunk = doc.chunk
+        except:
+                print("No document exists!\nCreating a new document.")
+                doc.save("{}{}.psx" .format(PATH_TO_IMAGES, IMAGE_PREFIX))
+                chunk = doc.addChunk()
+"""
+
+"""
+PHASE_LABEL = "none"
 #SFB Erase the current line by printing spaces
 # - Does not advance to the next line
 def blank_line(length=80):
@@ -38,11 +58,15 @@ def start_time():
     #SFB Indicate processing is starting
     sys.stdout.flush()
     print("\nStarting processing:")
-    start = time.time()"""
+    start = time.time()
+"""
 
 #AIW Creates a log text file.
 def log(PATH_TO_IMAGES, IMAGE_PREFIX):
-    logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), level=logging.INFO)
+    #logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+    PATH = "{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX)
+    
+    logging.basicConfig(filename=PATH ,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
 #AIW Enables GPU processing in Metashape.
 def use_gpu():
@@ -62,11 +86,12 @@ def use_gpu():
 def chunk_correct(doc, chunk):
     #SFB Changes the dimensions of the chunk's reconstruction volume.
     print("Correcting chunk")
+    logging.info("Started correcting chunk")
     NEW_REGION = doc.chunk.region
     NEW_REGION.size = NEW_REGION.size * 2.0
     doc.chunk.region = NEW_REGION
     print("Done")
-    logging.info("Corrected chunk")
+    logging.info("Done")
 
 #AIW Creates an image list and adds them to the current chunk.
 def image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX):
@@ -74,6 +99,7 @@ def image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX):
     images = []
 
     print("Creating image list")
+    logging.info("Started creating image list")
     for image in range(1, 121):
         filename = ("%s%s%04d.tif" %(PATH_TO_IMAGES, IMAGE_PREFIX, image))
         images.append(filename)
@@ -82,28 +108,30 @@ def image_list(chunk, PATH_TO_IMAGES, IMAGE_PREFIX):
     #AIW From API "Add a list of photos to the chunk." 
     chunk.addPhotos(images)
     print("Done")
-    logging.info("Created image list")
     logging.info(images)
+    logging.info("Done")
 
 #AIW Automates masking.
 def auto_mask(chunk, PATH_TO_MASKS):
     #AIW Getting reference to camera. Index is out of range if not run after chunk.addPhotos.
     camera = chunk.cameras[0]
     print("Creating masks")
+    logging.info("Started creating masks")
 
     #AIW From API "Import masks for multiple cameras." 
     # - Import background images for masking out the background. 
     # - Camera must be referenced for this step to work.
     chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground, operation=Metashape.MaskOperationReplacement, tolerance=10)
     print("Done")
-    logging.info("Auto masking successful")
+    logging.info("Done")
 
 #AIW Places markers on coded targets in images.
 def place_markers(chunk):
         print("Placing markers")
+        logging.info("Started placing markers")
         chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5)
         print("Done")
-        logging.info("Markers placed")
+        logging.info("Done")
 
 #AIW Gets marker info.
 def print_markers(chunk):

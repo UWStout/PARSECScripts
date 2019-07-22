@@ -12,3 +12,6 @@ TestData
 
 # Ignore compiled python cache
 __pycache__
+
+# Extra processing script to compare (not in repo)
+AutoProcess_v2

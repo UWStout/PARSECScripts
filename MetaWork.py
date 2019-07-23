@@ -3,6 +3,7 @@
 import Metashape
 import logging
 
+"""Alignment Options"""
 #AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for quick results.
 def quick_align(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
@@ -54,6 +55,8 @@ def arc_align(chunk):
     print ("Done")
     logging.info("Done")
 
+"""Dense Cloud Options"""
+
 #AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for general use.
 def gen_dense_cloud(chunk):
     #AIW From API "Generate depth maps for the chunk."
@@ -84,6 +87,8 @@ def arc_dense_cloud(chunk):
     print("Done")
     logging.info("Done")
 
+"""Model Options"""
+
 #AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for quick results.
 def quick_model(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
@@ -109,10 +114,6 @@ def gen_model(chunk):
     print("Building general quality textured 3D model")
     logging.info("Building general quality textured 3D model")
     chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True)
-
-    #AIW Performs cleanup.
-    chunk.model.fixTopology()
-
 
     #AIW From API "Generate uv mapping for the model."
     chunk.buildUV(adaptive_resolution=True)

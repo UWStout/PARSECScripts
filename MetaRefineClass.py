@@ -13,7 +13,6 @@ PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
 IMAGE_PREFIX = "EricMarkers"
 #AIW Change this path to the masks' folder in the user's scan data directory.
 PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
-PHASE_LABEL = "none"
 
 #AIW From MetaQuickClass
 #SFB These functions are static and can be called with just the module class name

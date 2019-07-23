@@ -96,9 +96,6 @@ def quick_model(chunk):
     logging.info("Started generating quick model")
     chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.PointCloudData, vertex_colors=True)
 
-    #AIW Performs cleanup.
-    chunk.model.fixTopology()
-
     #AIW From API "Generate uv mapping for the model."
     chunk.buildUV(adaptive_resolution=True)
 

@@ -4,10 +4,18 @@ import logging.config
 import os
 import sys
 
+# Has the logger been initialized
+_LOGGER_INITIALIZED_ = False
+
 def init(logFilePath, logFileName):
+  global _LOGGER_INITIALIZED_
   '''
   Config the logger module and redirect C module output
   '''
+  # Make sure we never initialize more than once
+  if _LOGGER_INITIALIZED_:
+    return
+
   # Redirect output from C Modules to a log file (assumed to be output from Metashape)
   metashapeLogFile = os.path.join(logFilePath, "{}_metashape.txt".format(logFileName))
   redirectCStdout(metashapeLogFile)
@@ -24,6 +32,8 @@ def init(logFilePath, logFileName):
   LF_Logger = logging.getLogger("MetaPy")
   LF_Logger.addHandler(LF_Handler)
 
+  _LOGGER_INITIALIZED_ = True
+
 def redirectCStdout(filename):
   sys.stdout.flush() # <--- important when redirecting to files
 
@@ -39,7 +49,11 @@ def redirectCStdout(filename):
   sys.stdout = os.fdopen(newstdout, 'w')
 
 def getLogger(name=None):
-  if name is None or name == "":
+  global _LOGGER_INITIALIZED_
+  if not _LOGGER_INITIALIZED_:
+    return None
+    
+  if name is None or name == "":  
     return logging.getLogger("MetaPy")
 
   else:

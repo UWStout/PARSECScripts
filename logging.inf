@@ -8,21 +8,21 @@ keys=stdoutHandler
 keys=simpleFormatter
 
 [logger_root]
-level=DEBUG
+level=INFO
 handlers=stdoutHandler
 
 [logger_MetaPy]
-level=DEBUG
+level=INFO
 qualname=MetaPy
 handlers=stdoutHandler
 propagate=0
 
 [handler_stdoutHandler]
 class=StreamHandler
-level=DEBUG
+level=INFO
 formatter=simpleFormatter
 args=(sys.stdout,)
 
 [formatter_simpleFormatter]
-format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+format=%(name)s - %(levelname)s - %(message)s
 datefmt=

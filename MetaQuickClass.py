@@ -32,13 +32,13 @@ MU.loadImages()
 MU.autoMask(PATH_TO_MASKS)
 
 #AIW Aligns photos.
-MetaWork.quick_align(MU.chunk)
+MetaWork.quickAlign(MU.chunk)
 
 #AIW Corrects the chunk.
 MU.chunkCorrect()
 
 #AIW Creats a quick model.
-MetaWork.quick_model(MU.chunk)
+MetaWork.quickModel(MU.chunk)
 
 MU.doc.save()
 print("Done")

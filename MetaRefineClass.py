@@ -24,10 +24,10 @@ MetaUtils.USE_GPU()
 MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #AIW Creates a dense cloud for general use.
-MetaWork.gen_dense_cloud(MU.chunk)
+MetaWork.genDenseCloud(MU.chunk)
 
 #AIW Creates a modelfor general use.
-MetaWork.gen_model(MU.chunk)
+MetaWork.genModel(MU.chunk)
 
 MU.doc.save()
 print("Done")

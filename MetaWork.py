@@ -5,7 +5,7 @@ import logging
 
 """Alignment Options"""
 #AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for quick results.
-def quick_align(chunk):
+def quickAlign(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
     # - First step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points. 
     # - Keypoints and Tiepoints for this script is Agisoft's suggested default. 
@@ -22,7 +22,7 @@ def quick_align(chunk):
     logging.info("Done")
 
 #AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for general results.
-def gen_align(chunk):
+def genAlign(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
     # - First step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points. 
     # - Keypoints and Tiepoints for this script is Agisoft's suggested default. 
@@ -39,7 +39,7 @@ def gen_align(chunk):
     logging.info("Done")
 
 #AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for archival results.
-def arc_align(chunk):
+def arcAlign(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
     # - First step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points. 
     # - Keypoints and Tiepoints for this script is Agisoft's suggested default. 
@@ -58,7 +58,7 @@ def arc_align(chunk):
 """Dense Cloud Options"""
 
 #AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for general use.
-def gen_dense_cloud(chunk):
+def genDenseCloud(chunk):
     #AIW From API "Generate depth maps for the chunk."
     # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
     # - max_neighbors parameter may save time and help with shadows. -1 is none.
@@ -73,7 +73,7 @@ def gen_dense_cloud(chunk):
     logging.info("Done")
 
 #AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for archival use.
-def arc_dense_cloud(chunk):
+def arcDenseCloud(chunk):
     #AIW From API "Generate depth maps for the chunk."
     # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
     # - max_neighbors parameter may save time and help with shadows. -1 is none.
@@ -90,7 +90,7 @@ def arc_dense_cloud(chunk):
 """Model Options"""
 
 #AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for quick results.
-def quick_model(chunk):
+def quickModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
     print("Quickly generating textured 3D model")
     logging.info("Started generating quick model")
@@ -106,7 +106,7 @@ def quick_model(chunk):
     logging.info("Done")
 
 #AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for general use.
-def gen_model(chunk):
+def genModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
     print("Building general quality textured 3D model")
     logging.info("Building general quality textured 3D model")
@@ -122,7 +122,7 @@ def gen_model(chunk):
     logging.info("Done")
 
 #AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for archival use.
-def arc_model(chunk):
+def arcModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds accurate mesh without generating extra geometry to be used in the last steps.
     print("Building archival quality textured 3D model")
     logging.info("Building archival quality textured 3D model")

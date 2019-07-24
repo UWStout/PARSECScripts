@@ -7,12 +7,15 @@ import MetaWork
 
 from MetaUtilsClass import MetaUtils
 
-#AIW Change this path to where user has their scan data stored. Create a folder 
-# in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
-IMAGE_PREFIX = "EricMarkers"
-#AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
+#AIW Gets locations for key image files and naming conventions from the user.
+PATH_TO_IMAGES = input("Image location: ")
+PATH_TO_IMAGES = PATH_TO_IMAGES + "\\"
+print(PATH_TO_IMAGES)
+IMAGE_PREFIX = input("Image prefix: ")
+print(IMAGE_PREFIX)
+PATH_TO_MASKS = input("Mask image location: ")
+PATH_TO_MASKS = PATH_TO_MASKS + "\\{filename}_mask.tif"
+print(PATH_TO_MASKS)
 
 #AIW From MetaQuickClass
 #SFB These functions are static and can be called with just the module class name

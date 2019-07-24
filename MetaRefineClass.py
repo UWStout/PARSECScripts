@@ -9,12 +9,12 @@ from MetaUtilsClass import MetaUtils
 
 #AIW Gets locations for key image files and naming conventions from the user.
 PATH_TO_IMAGES = input("Image location: ")
-PATH_TO_IMAGES = PATH_TO_IMAGES + "\\"
+PATH_TO_IMAGES = PATH_TO_IMAGES + "/"
 print(PATH_TO_IMAGES)
 IMAGE_PREFIX = input("Image prefix: ")
 print(IMAGE_PREFIX)
 PATH_TO_MASKS = input("Mask image location: ")
-PATH_TO_MASKS = PATH_TO_MASKS + "\\{filename}_mask.tif"
+PATH_TO_MASKS = PATH_TO_MASKS + "/{filename}_mask.tif"
 print(PATH_TO_MASKS)
 
 #AIW From MetaQuickClass

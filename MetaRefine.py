@@ -42,48 +42,8 @@ except:
 #AIW Creates a dense cloud for general use.
 MetaWork.gen_dense_cloud(chunk)
 
-"""#AIW From API "Generate depth maps for the chunk."
-# - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
-# - max_neighbors parameter may save time and help with shadows. -1 is none.
-phaseTime = time.time()
-PHASE_LABEL = "Building Depth Maps"
-chunk.buildDepthMaps(quality=Metashape.HighQuality, filter=Metashape.AggressiveFiltering, max_neighbors=100, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save
-
-#AIW From API "Generate dense cloud for the chunk."
-# - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
-phaseTime = time.time()
-PHASE_LABEL = "Building Dense Cloud"
-chunk.buildDenseCloud(point_colors=True, keep_depth=True, max_neighbors=100, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()"""
-
 #AIW Creates a modelfor general use.
 MetaWork.gen_model(chunk)
-
-"""#AIW From API "Generate model for the chunk frame." 
-# - Builds mesh to be used for next steps.
-phaseTime = time.time()
-PHASE_LABEL = "3D Model"
-chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
-
-#AIW From API "Generate uv mapping for the model."
-phaseTime = time.time()
-PHASE_LABEL = "UV 3D Model"
-chunk.buildUV(progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()
-
-#AIW From API "Generate texture for the chunk." 
-# - Generates a 4k texture for the 3D model.
-phaseTime = time.time()
-PHASE_LABEL = "Generate Texture"
-chunk.buildTexture(blending=Metashape.MosaicBlending, size=(4096), fill_holes=False, progress=progress_callback)
-print_time_elapsed(phaseTime)
-doc.save()"""
 
 print("Done")
 

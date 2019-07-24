@@ -27,18 +27,29 @@ class MetaUtils:
     self.imagePath = path
     self.namePrefix = prefix
 
-    # Initialize logging
-    self.initLog()
-
     # Check that we have a valid Document
+    print ("Verifying / loading doc")
     if self.doc is None:
       self.initDoc()
     else:
       self.imagePath, self.namePrefix = os.path.split(self.doc.path)
       self.namePrefix, extension = os.path.splitext(self.namePrefix)
 
+    # Initialize logging
+    print ("Initializing log")
+    self.initLog()
+
     # Get reference to active chunk
+    print ("Referencing chunk")
     self.chunk = self.doc.chunk
+    if self.chunk is None:
+      if len(self.doc.chunks) > 0:
+        self.chunk = self.doc.chunks[0]
+      else:
+        raise Exception('Could not find or make chunk in document.')
+
+    print ("> doc is " + str(self.doc))
+    print ("> chunk is " + str(self.chunk))
     
   #AIW Check compatibility. Modified from public Agisoft scripts.
   @staticmethod
@@ -48,7 +59,7 @@ class MetaUtils:
       logging.warning("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
       raise Exception("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
     else:
-      print (actualVersion + " OK")
+      print ("Version " + actualVersion + " OK")
       logging.info ("Metashape version: " + actualVersion + " OK")
 
   #AIW Enables GPU processing in Metashape.
@@ -69,7 +80,7 @@ class MetaUtils:
   #AIW Creates a log text file.
   def initLog(self):
     # logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-    PATH = "{}{}_log.txt".format(self.imagePath, self.namePrefix)    
+    PATH = "{}{}_log.txt".format(self.imagePath, self.namePrefix)
     logging.basicConfig(filename=PATH ,format='%(asctime)s %(message)s',
       datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
@@ -88,7 +99,10 @@ class MetaUtils:
     except:
       print("No existing PSX document, creating new.")
       self.doc.save("{}{}.psx" .format(self.imagePath, self.namePrefix))
-      self.doc.addChunk()
+
+    if len(self.doc.chunks) < 1:
+      self.doc.chunk = self.doc.addChunk()
+      self.doc.save("{}{}.psx" .format(self.imagePath, self.namePrefix))
 
   #AIW Automates correction processes for the chunk.
   def chunkCorrect(self):
@@ -112,8 +126,7 @@ class MetaUtils:
     #SFB Loop over all files in image path and add if an image type
     for filename in os.listdir(self.imagePath):
       if filename.lower().endswith(MetaUtils.IMAGE_FILE_EXTENSION_LIST):
-        images.append(filename)
-    print(images)
+        images.append(self.imagePath + filename)
 
     #AIW From API "Add a list of photos to the chunk." 
     self.chunk.addPhotos(images)

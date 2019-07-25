@@ -35,18 +35,25 @@ def init(logFilePath, logFileName):
   _LOGGER_INITIALIZED_ = True
 
 def redirectCStdout(filename):
-  sys.stdout.flush() # <--- important when redirecting to files
+  # We guard against exceptions in here and if something goes wrong
+  # just print a warning and give up.
+  try:
+    sys.stdout.flush() # <--- important when redirecting to files
 
-  # Duplicate stdout (usually file descriptor 1) to a different file descriptor number
-  newstdout = os.dup(sys.stdout.fileno())
+    # Duplicate stdout (usually file descriptor 1) to a different file descriptor number
+    newstdout = os.dup(sys.stdout.fileno())
 
-  # Create a file and overwrite filedescriptor 1 to be that then close it
-  testFile = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
-  os.dup2(testFile, 1)
-  os.close(testFile)
+    # Create a file and overwrite filedescriptor 1 to be that then close it
+    testFile = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
+    os.dup2(testFile, 1)
+    os.close(testFile)
 
-  # Use the original stdout to still be able to print to stdout within python
-  sys.stdout = os.fdopen(newstdout, 'w')
+    # Use the original stdout to still be able to print to stdout within python
+    sys.stdout = os.fdopen(newstdout, 'w')
+
+  except Exception as e:
+    print("Error: something went wrong while redirecting MetaShape output.", file=sys.stderr)
+    print("Error: {}".format(e), file=sys.stderr)
 
 def getLogger(name=None):
   global _LOGGER_INITIALIZED_

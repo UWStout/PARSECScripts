@@ -2,6 +2,7 @@ import logging
 import logging.config
 
 import os, sys, platform
+from os import path
 
 # Has the logger been initialized
 _LOGGER_INITIALIZED_ = False
@@ -20,7 +21,8 @@ def init(logFilePath, logFileName):
   redirectCStdout(metashapeLogFile)
 
   # Read base logging config
-  logging.config.fileConfig("logging.inf")
+  configFilePath = path.join(path.dirname(path.abspath(__file__)), "logging.inf")
+  logging.config.fileConfig(str(configFilePath))
 
   # Create default handlers/formatters for logging to file
   LF_Handler = logging.FileHandler(os.path.join(logFilePath, "{}_log.txt".format(logFileName)), "w")

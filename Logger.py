@@ -1,8 +1,7 @@
 import logging
 import logging.config
 
-import os
-import sys
+import os, sys, platform
 
 # Has the logger been initialized
 _LOGGER_INITIALIZED_ = False
@@ -41,12 +40,15 @@ def redirectCStdout(filename):
     sys.stdout.flush() # <--- important when redirecting to files
 
     # Duplicate stdout (usually file descriptor 1) to a different file descriptor number
-    newstdout = os.dup(sys.stdout.fileno())
+    stdoutFD = 1
+    if platform.system() != 'Windows':
+      stdoutFD = sys.stdout.fileno()
+    newstdout = os.dup(stdoutFD)
 
     # Create a file and overwrite filedescriptor 1 to be that then close it
-    testFile = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
-    os.dup2(testFile, 1)
-    os.close(testFile)
+    stdoutFile = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
+    os.dup2(stdoutFile, 1)
+    os.close(stdoutFile)
 
     # Use the original stdout to still be able to print to stdout within python
     sys.stdout = os.fdopen(newstdout, 'w')

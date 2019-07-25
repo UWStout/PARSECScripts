@@ -3,8 +3,10 @@
 import Metashape
 import sys
 import time
-import logging
 import os
+
+import Logger
+logger = Logger.getLogger('Utils')
 
 """ This object contains general functions to help process a MetaShape document object
     It should be passed an existing document when created either already processed or
@@ -17,7 +19,7 @@ class MetaUtils:
   IMAGE_FILE_EXTENSION_LIST = ('.jpg', '.jpeg', '.png', '.tif', '.tiff')
 
   """ Construct a new MetaUtils object with the given Metashape Document """
-  def _init_(self, doc, path = "", prefix = ""):
+  def __init__(self, doc, path = "", prefix = ""):
     # Check that all needed information was supplied
     if path == "" and prefix == "" and doc is None:
       raise Exception('You must supply either an existing Metashape.Document or the path and prefix to make one.')
@@ -27,10 +29,8 @@ class MetaUtils:
     self.imagePath = path
     self.namePrefix = prefix
 
-    # Initialize logging
-    self.initLog()
-
     # Check that we have a valid Document
+    logger.debug ("Verifying / loading doc")
     if self.doc is None:
       self.initDoc()
     else:
@@ -38,18 +38,26 @@ class MetaUtils:
       self.namePrefix, extension = os.path.splitext(self.namePrefix)
 
     # Get reference to active chunk
+    logger.debug ("Referencing chunk")
     self.chunk = self.doc.chunk
+    if self.chunk is None:
+      if len(self.doc.chunks) > 0:
+        self.chunk = self.doc.chunks[0]
+      else:
+        raise Exception('Could not find or make chunk in document.')
+
+    logger.debug ("> doc is " + str(self.doc))
+    logger.debug ("> chunk is " + str(self.chunk))
     
   #AIW Check compatibility. Modified from public Agisoft scripts.
   @staticmethod
   def CHECK_VER(metashapeVersionString):
     actualVersion = ".".join(metashapeVersionString.split('.')[:2])
     if actualVersion != MetaUtils.COMPATABLE_VERSION:
-      logging.warning("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
+      logger.warning("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
       raise Exception("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
     else:
-      print (actualVersion + " OK")
-      logging.info ("Metashape version: " + actualVersion + " OK")
+      logger.info ("Metashape version: " + actualVersion + " OK")
 
   #AIW Enables GPU processing in Metashape.
   @staticmethod
@@ -60,18 +68,9 @@ class MetaUtils:
 
     #SFB Enable all GPUs
     if gpuCount > 0:
-      print("Enabling %d GPUs" %(gpuCount))
+      logger.info("Enabling %d GPUs" %(gpuCount))
       Metashape.app.gpu_mask = 2**gpuCount - 1
       Metashape.app.cpu_enable = False
-      print("Done")
-      logging.info("Enabled %d GPUs" %(gpuCount))
-
-  #AIW Creates a log text file.
-  def initLog(self):
-    # logging.basicConfig(filename="{}{}_log.txt".format(PATH_TO_IMAGES, IMAGE_PREFIX), format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-    PATH = "{}{}_log.txt".format(self.imagePath, self.namePrefix)    
-    logging.basicConfig(filename=PATH ,format='%(asctime)s %(message)s',
-      datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
   #SFB Import images and create a new doc
   def initDoc(self):
@@ -84,42 +83,40 @@ class MetaUtils:
     # - .psx format will not save correctly otherwise.
     try:
       self.doc.open("{}{}.psx" .format(self.imagePath, self.namePrefix), read_only=False, ignore_lock=True)
-      print("Found existing PSX document.")
+      logger.info("Found existing PSX document.")
     except:
-      print("No existing PSX document, creating new.")
+      logger.info("No existing PSX document, creating new.")
       self.doc.save("{}{}.psx" .format(self.imagePath, self.namePrefix))
-      self.doc.addChunk()
+
+    if len(self.doc.chunks) < 1:
+      self.doc.chunk = self.doc.addChunk()
+      self.doc.save("{}{}.psx" .format(self.imagePath, self.namePrefix))
 
   #AIW Automates correction processes for the chunk.
   def chunkCorrect(self):
       #SFB Changes the dimensions of the chunk's reconstruction volume.
-      print("Correcting chunk")
-      logging.info("Started correcting chunk")
+      logger.info("Correcting chunk")
       NEW_REGION = self.chunk.region
       NEW_REGION.size = NEW_REGION.size * 2.0
       self.chunk.region = NEW_REGION
-      print("Done")
-      logging.info("Done")
+      logger.info("Done Correcting Chunk")
 
   #AIW Creates an image list and adds them to the current chunk.
   def loadImages(self):
     #SFB Build the list of image filenames
     images = []
 
-    print("Creating image list")
-    logging.info("Started creating image list")
+    logger.info("Loading Images")
 
     #SFB Loop over all files in image path and add if an image type
     for filename in os.listdir(self.imagePath):
       if filename.lower().endswith(MetaUtils.IMAGE_FILE_EXTENSION_LIST):
-        images.append(filename)
-    print(images)
+        images.append(self.imagePath + filename)
 
     #AIW From API "Add a list of photos to the chunk." 
     self.chunk.addPhotos(images)
-    print("Done")
-    logging.info(images)
-    logging.info("Done")
+    logger.info("Done Loading Images")
+    logger.debug(images)
 
   #AIW Automates masking.
   def autoMask(self, PATH_TO_MASKS):
@@ -127,33 +124,24 @@ class MetaUtils:
     if len(self.chunk.cameras) <= 0:
       raise Exception("Cannot mask before adding images")
 
-    print("Creating masks")
-    logging.info("Started creating masks")
+    logger.info("Importing Backgrounds for Masking")
 
     #AIW From API "Import masks for multiple cameras." 
     # - Import background images for masking out the background. 
     # - Camera must be referenced for this step to work.
     self.chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground,
       operation=Metashape.MaskOperationReplacement, tolerance=10)
-    print("Done")
-    logging.info("Done")
+    logger.info("Done Masking")
 
   #AIW Places markers on coded targets in images.
   def detectMarkers(self):
-    print("Placing markers")
-    logging.info("Started placing markers")
+    logger.info("Detecting markers")
     self.chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False, noparity=False, maximum_residual=5)
-    print("Done")
-    logging.info("Done")
+    logger.info("Done Detecting Markers")
 
   #AIW Displays marker info.
   def outputMarkers(self):
+    logger.info("Outputting Marker Info")
     for marker in self.chunk.markers:
-      print("Getting marker info")
-      #XYZ coords?
-      print(marker.position)
-      #Key in dictionary
-      print(marker.key)
-      #These are the label names shown in Metashape GUI
-      print(marker.label)
-      print("Done")
+      logger.info("{} / {} - {}".format(marker.key, marker.label, marker.position))
+    logger.info("Done with Marker Info")

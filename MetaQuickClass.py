@@ -1,23 +1,33 @@
 """A script for quick, "dirty" Metashape results"""
 
-import Metashape
 import sys
 import time
+
+#AIW Gets locations for key image files and naming conventions from the user.
+PATH_TO_IMAGES = input("Image location: ")
+PATH_TO_IMAGES = PATH_TO_IMAGES + "/"
+print(PATH_TO_IMAGES)
+IMAGE_PREFIX = input("Image prefix: ")
+print(IMAGE_PREFIX)
+PATH_TO_MASKS = input("Mask image location and file pattern: ")
+print(PATH_TO_MASKS)
+
+#SFB Import and initialize the logging system
+#SFB This also redirects all MetaScan output
+#SFB Reads config from the file 'logging.inf'
+import Logger
+Logger.init(PATH_TO_IMAGES, IMAGE_PREFIX)
+logger = Logger.getLogger()
+
+import Metashape
 import MetaWork
-
 from MetaUtilsClass import MetaUtils
-
-#AIW Change this path to where user has their scan data stored. Create a folder 
-# in this dir named 'masks' and place empty images to use for bg masks.
-PATH_TO_IMAGES = "E:/ParsecExp/EricMarkersHQ/"
-IMAGE_PREFIX = "EricMarkers"
-#AIW Change this path to the masks' folder in the user's scan data directory.
-PATH_TO_MASKS = "E:/ParsecExp/EricMarkersHQ/Masks/{filename}_mask.tif"
-PHASE_LABEL = "none"
 
 #SFB These functions are static and can be called with just the module class name
 MetaUtils.CHECK_VER(Metashape.app.version)
 MetaUtils.USE_GPU()
+
+logger.info("Starting Quick Processing")
 
 #SFB Creating an instance will initialize the doc, the logger and the paths
 MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
@@ -29,16 +39,16 @@ MU.loadImages()
 MU.autoMask(PATH_TO_MASKS)
 
 #AIW Aligns photos.
-MetaWork.quick_align(MU.chunk)
+MetaWork.quickAlign(MU.chunk)
 
 #AIW Corrects the chunk.
 MU.chunkCorrect()
 
 #AIW Creats a quick model.
-MetaWork.quick_model(MU.chunk)
+MetaWork.quickModel(MU.chunk)
 
 MU.doc.save()
-print("Done")
+logger.info("Quick Processing Done")
 
 #AIW Exits script and releases the lock on the current document.
 sys.exit()

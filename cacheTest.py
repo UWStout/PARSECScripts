@@ -4,36 +4,39 @@ import os
 import pickle
 
 #AIW Based on code by Markus Konrad https://tinyurl.com/yxtrlxxc.
-# Creates a decorator which will use "user" for caching the results 
-# - of the decorated function "func".
-def userCache(user):
-    # Defines the wrapper that will call "func" if "user" exists, load it, and return its contents.
-    def decor(func):
-        def wrap(*args, **kwargs):
-            if os.path.exists(user):
-                with open(user, 'rb') as userHandle:
-                    print("Using cached result from {}".format(user))
-                    return pickle.load(userHandle)
+# Creates a decorator which will use "cachefile" for caching the results 
+# - of the decorated function "fn".
+def userCache(cachefile):
+    def decorator(fn):
+        # Defines the wrapper that will call "fn" if cache exists, load it, and return its contents.
+        def wrapped(*args, **kwargs):
+            if os.path.exists(cachefile):
+                with open(cachefile, 'rb') as cachehandle:
+                    print("Using cached result from {}".format(cachefile))
+                    return pickle.load(cachehandle)
 
             #Execute the function with all arguments.
-            res = func(*args, **kwargs)
+            res = fn(*args, **kwargs)
 
             #Writes cache.
-            with open(user, 'wb') as cacheHandle:
-                print("Saving result to cache {}".format(user))
-                pickle.dump(res, cacheHandle)
+            with open(cachefile, 'wb') as cachehandle:
+                print("Saving result to cache {}".format(cachefile))
+                pickle.dump(res, cachehandle)
             
             return res
 
-        return wrap
+        return wrapped
 
-    return decor
+    return decorator
 
-@userCache(usePrev.pickle)
-def usePrev():
-    userCache = ('user.args')
-    with open('user.args', 'w') as f:
-        f.write (('-I') + ('\n') + input("Path to images: ") + ('\n-M') + ('\n') + input("Path and format for background images: ")
-                    + ('\n-N') + ('\n') + input("\nPrefix to apply to log and MetaShape file names: "));
+#AIW Creates a var from user input
+userInput = (('-I') + ('\n') + input("Path to images: ") + ('\n-M') + ('\n') + input("Path and format for background images: ")
+                    + ('\n-N') + ('\n') + input("\nPrefix to apply to log and MetaShape file names: "))
 
-print(usePrev())
+#AIW A function that gets user input as binary and writes to cache file via decorator.
+@userCache('userInput.pickle')
+def IMN(userInput):
+    map(bin, bytearray(userInput, 'utf8'))
+    return userInput
+
+print(IMN(userInput))

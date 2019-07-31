@@ -1,26 +1,27 @@
 import sys
 import argparse
 import os
-import pickle
-
+import functools
+#import pickle
+"""
 #AIW Based on code by Markus Konrad https://tinyurl.com/yxtrlxxc.
 # Creates a decorator which will use "cachefile" for caching the results 
 # - of the decorated function "fn".
-def userCache(cachefile):
+def userCache(cacheFile):
     def decorator(fn):
         # Defines the wrapper that will call "fn" if cache exists, load it, and return its contents.
         def wrapped(*args, **kwargs):
-            if os.path.exists(cachefile):
-                with open(cachefile, 'rb') as cachehandle:
-                    print("Using cached result from {}".format(cachefile))
-                    return pickle.load(cachehandle)
+            if os.path.exists(cacheFile):
+                with open(cacheFile, 'r') as cacheHandle:
+                    print("Using cached result from {}".format(cacheFile))
+                    return pickle.load(cacheHandle)
 
             #Execute the function with all arguments.
             res = fn(*args, **kwargs)
 
             #Writes cache.
-            with open(cachefile, 'wb') as cachehandle:
-                print("Saving result to cache {}".format(cachefile))
+            with open(cacheFile, 'wb') as cachehandle:
+                print("Saving result to cache {}".format(cacheFile))
                 pickle.dump(res, cachehandle)
             
             return res
@@ -28,6 +29,16 @@ def userCache(cachefile):
         return wrapped
 
     return decorator
+"""
+def userCache(cacheFile):
+    #AIW Wraps decorator its identity isn't lost.
+    @functools.wraps(chacheFile)
+    def wrapper(*args, **kwargs):
+        if os.path.exists(cacheFile):
+            with open(cacheFile, 'r') as CacheHandle:
+                print("Using previous project {}".format(cacheFile))
+                return CacheHandle
+
 
 #AIW Creates a var from user input
 userInput = (('-I') + ('\n') + input("Path to images: ") + ('\n-M') + ('\n') + input("Path and format for background images: ")
@@ -35,8 +46,8 @@ userInput = (('-I') + ('\n') + input("Path to images: ") + ('\n-M') + ('\n') + i
 
 #AIW A function that gets user input as binary and writes to cache file via decorator.
 @userCache('userInput.pickle')
-def IMN(userInput):
-    map(bin, bytearray(userInput, 'utf8'))
-    return userInput
+def IMN(userData):
+    map(bin, bytearray(userData, 'utf8'))
+    return userData
 
 print(IMN(userInput))

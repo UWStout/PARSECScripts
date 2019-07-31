@@ -30,16 +30,19 @@ def userCache(cacheFile):
 
     return decorator
 """
+"""
 def userCache(cacheFile):
-    #AIW Wraps decorator its identity isn't lost.
+    #AIW Wraps decorator so its identity isn't lost.
     @functools.wraps(chacheFile)
     def wrapper(*args, **kwargs):
         if os.path.exists(cacheFile):
             with open(cacheFile, 'r') as CacheHandle:
-                print("Using previous project {}".format(cacheFile))
+                print("Using previous project {cacheFile}")
                 return CacheHandle
+"""
 
 
+"""
 #AIW Creates a var from user input
 userInput = (('-I') + ('\n') + input("Path to images: ") + ('\n-M') + ('\n') + input("Path and format for background images: ")
                     + ('\n-N') + ('\n') + input("\nPrefix to apply to log and MetaShape file names: "))
@@ -51,3 +54,10 @@ def IMN(userData):
     return userData
 
 print(IMN(userInput))
+"""
+#AIW opens and writes a utf-8 encoded text file with user input.
+with open('project.txt', 'w', encoding='utf-8') as f:
+    projectPaths = {'imagePath':input('Path to images: '), 
+                'imagePrefix':input('Prefix to apply to log and MetaShape file names: '), 
+                'maskPath':input('Path and format for background images: ')}
+    f.write(str(projectPaths))

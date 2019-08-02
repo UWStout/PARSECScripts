@@ -78,7 +78,7 @@ class ProjectPrefs:
 
         #SFB Copy values back to the INI prefs argument if they are not None
         for name, argument in ProjectPrefs.ALLOWED_PREFS.items():
-            CLValue = getattr(CLArgs, argument['short'], None)
+            CLValue = getattr(CLArgs, argument['long'], None)
             if not CLValue is None:
                 self.INIConfig[argument['section']][name] = CLValue
 

@@ -69,7 +69,7 @@ class ProjectPrefs:
 
         #SFB Add possible arguments to the parser
         for name, argument in ProjectPrefs.ALLOWED_PREFS.items():
-            argParser.add_argument('-' + argument['short'], '-' + argument['long'],
+            argParser.add_argument('-' + argument['short'], '--' + argument['long'],
                 metavar=name, help=argument['help'],
                 default=self.INIConfig[argument['section']].get(name))
 

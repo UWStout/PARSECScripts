@@ -6,19 +6,19 @@ parser = argparse.ArgumentParser(description='Quickly Process Photogrammetry Ima
                                 fromfile_prefix_chars='@')
 
 # Add possible arguments to the parser
-parser.add_argument('-I', '-images', metavar='ImagePath', 
+parser.add_argument('-I', '--images', metavar='ImagePath', 
                     help='Path to the folder containing subject images.')
-parser.add_argument('-M', '-masks', metavar='MasksPath', 
+parser.add_argument('-M', '--masks', metavar='MasksPath', 
                     help='Path to the folder containing images for background subtraction.')
-parser.add_argument('-N', '-name', metavar='NamePrefix', default='MetaPy',
+parser.add_argument('-N', '--name', metavar='NamePrefix', default='MetaPy',
                     help='A prefix to apply to log and MetaShape file names.')
-
+"""
 #AIW Write user arguments into a text file cache.
 with open('user.args', 'w', encoding='utf-8') as f:
     args = parser.parse_args()
     projectPaths = args
     f.write(str(projectPaths))
-
+"""
 # Parse arguments from the command line only
 print("=========================")
 args = parser.parse_args()

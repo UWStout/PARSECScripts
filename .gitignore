@@ -15,3 +15,10 @@ __pycache__
 
 # Extra processing script to compare (not in repo)
 AutoProcess_v2
+
+#AIW Ignore experimental .ini file
+result.ini
+
+#AIW Ignore experimental cache files
+user.args
+

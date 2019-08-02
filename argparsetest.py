@@ -10,28 +10,28 @@ parser.add_argument('-I', '--images', metavar='ImagePath',
                     help='Path to the folder containing subject images.')
 parser.add_argument('-M', '--masks', metavar='MasksPath', 
                     help='Path to the folder containing images for background subtraction.')
-parser.add_argument('-N', '--name', metavar='NamePrefix', default='MetaPy',
+parser.add_argument('-N', '--name', metavar='NamePrefix', default='MetaPy', 
                     help='A prefix to apply to log and MetaShape file names.')
-"""
+
 #AIW Write user arguments into a text file cache.
-with open('user.args', 'w', encoding='utf-8') as f:
+with open('user.cache', 'w', encoding='utf-8') as f:
     args = parser.parse_args()
     projectPaths = args
     f.write(str(projectPaths))
-"""
+
 # Parse arguments from the command line only
 print("=========================")
 args = parser.parse_args()
-print(args.N)
-print(args.I)
-print(args.M)
+print(args.name)
+print(args.images)
+print(args.masks)
 print("=========================")
 
 # Parse arguments from the file only
 args = parser.parse_args(['@user.args'])
-print(args.N)
-print(args.I)
-print(args.M)
+print(args.name)
+print(args.images)
+print(args.masks)
 print("=========================")
 
 # Parse arguments from both the command line and the file
@@ -40,7 +40,7 @@ myArgList.insert(0, '@user.args') # In this version (the @file comes first) the 
 # myArgList.append('@user.args') # In this version (the @file comes last) the files ones override the command line ones
 
 args = parser.parse_args(myArgList)
-print(args.N)
-print(args.I)
-print(args.M)
+print(args.name)
+print(args.images)
+print(args.masks)
 print("=========================")

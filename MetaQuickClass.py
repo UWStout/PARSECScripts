@@ -14,6 +14,8 @@ print(IMAGE_PREFIX)
 PATH_TO_MASKS = prefs.getPref(prefName='MaskPath',)
 print(PATH_TO_MASKS)
 
+prefs.saveConfig()
+
 #SFB Import and initialize the logging system
 #SFB This also redirects all MetaScan output
 #SFB Reads config from the file 'logging.inf'

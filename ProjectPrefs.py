@@ -87,7 +87,7 @@ class ProjectPrefs:
     def setPref(self, prefName, newValue):
         #SFB check the preference name
         if not prefName in ProjectPrefs.ALLOWED_PREFS:
-            raise Exception('Invalid preference name - "{}"'.format(prefName))
+            raise Exception('Invalid preference name - "{prefName}"')
         
         #SFB Assign newValue to the preference in the INI config object        
         pref = ProjectPrefs.ALLOWED_PREFS[prefName]
@@ -97,7 +97,7 @@ class ProjectPrefs:
     def getPref(self, prefName):
         #SFB check the preference name
         if not prefName in ProjectPrefs.ALLOWED_PREFS:
-            raise Exception('Invalid preference name - "{}"'.format(prefName))
+            raise Exception('Invalid preference name - "{prefName}"')
 
         #SFB Retrieve and return the preference value        
         pref = ProjectPrefs.ALLOWED_PREFS[prefName]

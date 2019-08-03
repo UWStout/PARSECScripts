@@ -1,7 +1,6 @@
 """A script for quick, "dirty" Metashape results"""
 
 import sys
-import time
 
 from ProjectPrefs import ProjectPrefs
 

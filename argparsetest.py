@@ -15,8 +15,7 @@ parser.add_argument('-N', '--name', metavar='NamePrefix', default='MetaPy',
 
 #AIW Write user arguments into a text file cache.
 with open('user.cache', 'w', encoding='utf-8') as f:
-    args = parser.parse_args()
-    projectPaths = args
+    projectPaths= parser.parse_args()
     f.write(str(projectPaths))
 
 # Parse arguments from the command line only

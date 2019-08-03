@@ -6,12 +6,12 @@ import time
 from ProjectPrefs import ProjectPrefs
 
 #AIW Gets locations for key image files and naming conventions from the user.
-PATH_TO_IMAGES = ProjectPrefs.getPref('ImagePath', '{path}')
-PATH_TO_IMAGES = PATH_TO_IMAGES + "/"
+prefs = ProjectPrefs()
+PATH_TO_IMAGES = prefs.getPref(prefName='ImagePath')
 print(PATH_TO_IMAGES)
-IMAGE_PREFIX = ProjectPrefs.getPref('NamePrefix', '{prefix}')
+IMAGE_PREFIX = prefs.getPref(prefName='NamePrefix')
 print(IMAGE_PREFIX)
-PATH_TO_MASKS = ('MaskPath', '{path}')
+PATH_TO_MASKS = prefs.getPref(prefName='MaskPath',)
 print(PATH_TO_MASKS)
 
 #SFB Import and initialize the logging system

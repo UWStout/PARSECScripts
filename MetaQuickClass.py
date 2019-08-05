@@ -6,6 +6,7 @@ from ProjectPrefs import ProjectPrefs
 
 #AIW Gets locations for key image files and naming conventions from the user.
 prefs = ProjectPrefs()
+
 PATH_TO_IMAGES = prefs.getPref(prefName='ImagePath')
 print(PATH_TO_IMAGES)
 IMAGE_PREFIX = prefs.getPref(prefName='NamePrefix')

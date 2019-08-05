@@ -12,7 +12,11 @@ class ProjectPrefs:
         'MaskPath': { 'short': 'M', 'long': 'masks', 'section': 'PATHS',
                       'help': 'Path to the images for background subtraction with filename pattern.' },
         'NamePrefix': { 'short': 'N', 'long': 'name', 'default': 'MetaPy', 'section': 'PROJECT',
-                        'help': 'A prefix to apply to log and MetaShape file names.' }
+                        'help': 'A prefix to apply to log and MetaShape file names.' },
+        'Project': { 'short': '-P', 'long': 'project', 'section': 'PATHS', 
+                        'help': 'Path to the folder to save project or load previous project.'}
+ #       'MetaQuick': { 'short': 'Q', 'long': 'MetaQuick', 'section': 'WORKFLOWS',
+ #                       'help': 'Quick photogrammetry image processing.'}                        
     }
 
     #SFB Create a new ProjectPrefs that will read from the ini file and command line

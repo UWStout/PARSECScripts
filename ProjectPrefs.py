@@ -1,4 +1,5 @@
 import argparse
+import os
 from configparser import ConfigParser
 
 class ProjectPrefs:
@@ -13,8 +14,6 @@ class ProjectPrefs:
                       'help': 'Path to the images for background subtraction with filename pattern.' },
         'NamePrefix': { 'short': 'N', 'long': 'name', 'default': 'MetaPy', 'section': 'PROJECT',
                         'help': 'A prefix to apply to log and MetaShape file names.' },
-        'Project': { 'short': 'P', 'long': 'project', 'section': 'PATHS', 
-                        'help': 'Path to the folder to save project or load previous project.'}
  #       'MetaQuick': { 'short': 'Q', 'long': 'MetaQuick', 'section': 'WORKFLOWS',
  #                       'help': 'Quick photogrammetry image processing.'}                        
     }
@@ -58,6 +57,9 @@ class ProjectPrefs:
         #SFB Update the filename if provided
         if prefsFileName:
             self.prefsFileName = prefsFileName
+        
+        #AIW Gets current working directory for testing.
+        print('Path being used by saveConfig: ' + os.getcwd())
 
         #SFB Write out the current config file
         with open(self.prefsFileName, 'w') as prefsFile:

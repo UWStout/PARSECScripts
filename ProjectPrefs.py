@@ -4,7 +4,7 @@ from configparser import ConfigParser
 
 class ProjectPrefs:
     #SFB Class wide defaults
-    DEFAULT_FILENAME = 'project.ini'
+    #DEFAULT_FILENAME = 'project.ini'
 
     #SFB All the configurable properties
     ALLOWED_PREFS = {
@@ -13,16 +13,16 @@ class ProjectPrefs:
         'MaskPath': { 'short': 'M', 'long': 'masks', 'section': 'PATHS',
                       'help': 'Path to the images for background subtraction with filename pattern.' },
         'NamePrefix': { 'short': 'N', 'long': 'name', 'default': 'MetaPy', 'section': 'PROJECT',
-                        'help': 'A prefix to apply to log and MetaShape file names.' },
- #       'MetaQuick': { 'short': 'Q', 'long': 'MetaQuick', 'section': 'WORKFLOWS',
- #                       'help': 'Quick photogrammetry image processing.'}                        
+                        'help': 'A prefix to apply to log and MetaShape file names.' },                    
     }
 
     #SFB Create a new ProjectPrefs that will read from the ini file and command line
     def __init__(self, prefsFileName = None):
         #SFB Use the default filename if none was provided
         if not prefsFileName:
-            prefsFileName = ProjectPrefs.DEFAULT_FILENAME
+            #prefsFileName = ProjectPrefs.DEFAULT_FILENAME
+            #AIW Prompts user for file location and name. For testing purposes.
+            prefsFileName = input("Where would you like to save/load project from? ") + input("\nPlease project name: ") + (".ini") 
 
         #SFB Attempt to read the ini preferences first
         self.readConfig(prefsFileName)

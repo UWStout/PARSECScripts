@@ -5,7 +5,7 @@ import sys
 from ProjectPrefs import ProjectPrefs
 
 #AIW Gets locations for key image files and naming conventions from the user.
-prefs = ProjectPrefs(input('Path to the folder to save current project or load previous: ') + 'test.ini')
+prefs = ProjectPrefs()
 
 PATH_TO_IMAGES = prefs.getPref(prefName='ImagePath')
 print(PATH_TO_IMAGES)
@@ -38,7 +38,7 @@ MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
 
 #AIW Creates an image list and adds them to the current chunk.
 MU.loadImages()
-"""
+
 #AIW Creates masks.
 MU.autoMask(PATH_TO_MASKS)
 
@@ -50,7 +50,7 @@ MU.chunkCorrect()
 
 #AIW Creats a quick model.
 MetaWork.quickModel(MU.chunk)
-"""
+
 MU.doc.save()
 logger.info("Quick Processing Done")
 

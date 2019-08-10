@@ -4,7 +4,7 @@ from configparser import ConfigParser
 
 class ProjectPrefs:
     #SFB Class wide defaults
-    #DEFAULT_FILENAME = 'project.ini'
+    DEFAULT_FILENAME = 'project.ini'
 
     #SFB All the configurable properties
     ALLOWED_PREFS = {
@@ -20,9 +20,9 @@ class ProjectPrefs:
     def __init__(self, prefsFileName = None):
         #SFB Use the default filename if none was provided
         if not prefsFileName:
-            #prefsFileName = ProjectPrefs.DEFAULT_FILENAME
+            prefsFileName = ProjectPrefs.DEFAULT_FILENAME
             #AIW Prompts user for file location and name. For testing purposes.
-            prefsFileName = input("Where would you like to save/load project from? ") + input("\nPlease project name: ") + (".ini") 
+            #prefsFileName = input("Where would you like to save/load project from? ") + input("\nPlease project name: ") + (".ini") 
 
         #SFB Attempt to read the ini preferences first
         self.readConfig(prefsFileName)

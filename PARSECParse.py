@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser()
 #AIW Sets project
 #AIW parser.add_argument('-P', '--project', help='Specifies project file path and name.')
 #AIW Runs MetaQuickClass
-parser.add_argument('-Q', '--quick', help='Quickly process photogrammetry data')
+parser.add_argument('-Q', '--quick', type=MetaWork.metaQuick, help='Quickly process photogrammetry data')
 parser.add_argument('-R', '--refine', help='Refines previously processed photogrammetry data')
 
 MetaUtils.CHECK_VER(Metashape.app.version)
@@ -31,6 +31,8 @@ MetaUtils.USE_GPU()
 args = parser.parse_args()
 #args.quick = MetaWork.metaQuick
 #args.quick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
+
+
 #args.refine = MetaWork.metaRefine
 #args.refine(PATH_TO_IMAGES, IMAGE_PREFIX)
 

@@ -1,6 +1,7 @@
 """A script containing various Metashape workflows."""
 
 #SFB Import the logging module and get a custom loger for this module
+from MetaUtilsClass import MetaUtils
 import Logger
 logger = Logger.getLogger('Utils')
 
@@ -123,3 +124,46 @@ def arcModel(chunk):
     # - Generates a 16k texture for the 3D model.
     chunk.buildTexture(blending=Metashape.MosaicBlending, size=(16384), fill_holes=False)
     logger.info ("Done building model")
+
+"""Workflow Options"""
+
+#AIW Quick photogrammetry processing.
+def metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS):
+    logger.info("Starting quick processing")
+
+    #SFB Creating an instance will initialize the doc, the logger and the paths
+    MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
+
+    #AIW Creates an image list and adds them to the current chunk.
+    MU.loadImages()
+
+    #AIW Creates masks.
+    MU.autoMask(PATH_TO_MASKS)
+
+    #AIW Aligns photos.
+    quickAlign(MU.chunk)
+
+    #AIW Corrects the chunk.
+    MU.chunkCorrect()
+
+    #AIW Creats a quick model.
+    quickModel(MU.chunk)
+
+    MU.doc.save()
+    logger.info("Quick processing done")
+
+#AIW Refinement of quickly processed photogrammetry data.
+def metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX):
+    logger.info("Starting refinement.")
+    
+    #SFB Creating an instance will initialize the doc, the logger and the paths
+    MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
+
+    #AIW Creates a dense cloud for general use.
+    genDenseCloud(MU.chunk)
+
+    #AIW Creates a modelfor general use.
+    genModel(MU.chunk)
+
+    MU.doc.save()
+    logger.info("Refinement done")

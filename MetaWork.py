@@ -134,20 +134,22 @@ def metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS):
     #SFB Creating an instance will initialize the doc, the logger and the paths
     MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
 
+    print("Quick will work")
+
     #AIW Creates an image list and adds them to the current chunk.
-    MU.loadImages()
+    #MU.loadImages()
 
     #AIW Creates masks.
-    MU.autoMask(PATH_TO_MASKS)
+    #MU.autoMask(PATH_TO_MASKS)
 
     #AIW Aligns photos.
-    quickAlign(MU.chunk)
+    #quickAlign(MU.chunk)
 
     #AIW Corrects the chunk.
-    MU.chunkCorrect()
+    #MU.chunkCorrect()
 
     #AIW Creats a quick model.
-    quickModel(MU.chunk)
+    #quickModel(MU.chunk)
 
     MU.doc.save()
     logger.info("Quick processing done")
@@ -159,11 +161,13 @@ def metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX):
     #SFB Creating an instance will initialize the doc, the logger and the paths
     MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
 
+    print("Refine will work")
+
     #AIW Creates a dense cloud for general use.
-    genDenseCloud(MU.chunk)
+    #genDenseCloud(MU.chunk)
 
     #AIW Creates a modelfor general use.
-    genModel(MU.chunk)
+    #genModel(MU.chunk)
 
     MU.doc.save()
     logger.info("Refinement done")

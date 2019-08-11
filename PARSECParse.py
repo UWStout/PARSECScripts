@@ -12,12 +12,13 @@ parser = argparse.ArgumentParser(description='Program for processing photogramme
 #AIW Sets project
 #AIW parser.add_argument('-P', '--project', help='Specifies project file path and name.')
 #AIW Runs MetaQuickClass
-parser.add_argument('-P', '--project', choices=['load', 'new'], required=True, help='')
+parser.add_argument('-P', '--project', choices=['load', 'new'], required=True, help='Load a previous project or process a new one')
 parser.add_argument('-Q', '--quick', action="store_true", help='Quickly process photogrammetry data')
 parser.add_argument('-R', '--refine', action="store_true", help='Refines previously processed photogrammetry data')
 
 args = parser.parse_args()
-if args.project[0]:
+print(args.project)
+if args.project[1]:
     prefs = input("Where would you like to load project from? ") + input("\nPlease enter project name: ") + (".ini")
 
     prefs = ProjectPrefs()
@@ -29,7 +30,7 @@ if args.project[0]:
     PATH_TO_MASKS = prefs.getPref(prefName='MaskPath',)
     print(PATH_TO_MASKS)
 
-elif args.project[1]:
+elif args.project[2]:
     PATH_TO_IMAGES = input("Please enter the path to images: ")
     IMAGE_PREFIX = input("Please enter filename prefix: ")
     PATH_TO_MASKS = input("Please enter file path and format for background images: ")

@@ -7,18 +7,16 @@ PATH_TO_IMAGES = ""
 IMAGE_PREFIX = ""
 PATH_TO_MASKS = ""
 
-parser = argparse.ArgumentParser(description='Program for processing photogrammetry data with Metashape')
+parser = argparse.ArgumentParser(prog='PARSECParse.py', description='Program for processing photogrammetry data with Metashape')
 
-#AIW Sets project
-#AIW parser.add_argument('-P', '--project', help='Specifies project file path and name.')
-#AIW Runs MetaQuickClass
 parser.add_argument('-P', '--project', choices=['load', 'new'], required=True, help='Load a previous project or process a new one')
 parser.add_argument('-Q', '--quick', action="store_true", help='Quickly process photogrammetry data')
 parser.add_argument('-R', '--refine', action="store_true", help='Refines previously processed photogrammetry data')
 
 args = parser.parse_args()
-print(args.project)
-if args.project[1]:
+
+#AIW Loads a previous project.ini.
+if args.project == 'load':
     prefs = input("Where would you like to load project from? ") + input("\nPlease enter project name: ") + (".ini")
 
     prefs = ProjectPrefs()
@@ -30,7 +28,8 @@ if args.project[1]:
     PATH_TO_MASKS = prefs.getPref(prefName='MaskPath',)
     print(PATH_TO_MASKS)
 
-elif args.project[2]:
+#AIW Creates a new project.ini
+elif args.project == 'new':
     PATH_TO_IMAGES = input("Please enter the path to images: ")
     IMAGE_PREFIX = input("Please enter filename prefix: ")
     PATH_TO_MASKS = input("Please enter file path and format for background images: ")
@@ -60,11 +59,10 @@ from MetaUtilsClass import MetaUtils
 MetaUtils.CHECK_VER(Metashape.app.version)
 MetaUtils.USE_GPU()
 
+#AIW Runs metaQuick from MEtaWork using the current project.ini
 if args.quick:
     MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
 
+#AIW Runs metaRefine from MetaWork using the current project.ini
 if args.refine:
     MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
-
-if args.project:
-    prefs = ProjectPrefs()

@@ -27,7 +27,7 @@ workflow_parser.add_argument('--refine', action='store_true', help='Refinement o
 args = parser.parse_args()
 
 #AIW Changes global variables to parsed user input
-if args.project == '--path':
-    PATH_TO_PROJECT = args.project.path
+if args.path:
+    PATH_TO_PROJECT = args.path
 
 print(PATH_TO_PROJECT)

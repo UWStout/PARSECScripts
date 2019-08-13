@@ -1,3 +1,6 @@
+"""A command line UI for PARSEC photogrammetry processing."""
+#AIW The current order is important, so, if the argparser functions are moved around, stuff might break.
+
 import sys
 import argparse
 
@@ -49,6 +52,7 @@ if args.load:
     if PATH_TO_PROJECT == None:
         print("Please specify a path for the project file!")
     else:
+        #AIW the print statement is a stand-in for the function.
         print('Loading existing project from '+ PATH_TO_PROJECT)
 
 if args.new:
@@ -57,6 +61,7 @@ if args.new:
             if IMAGE_PREFIX == None:
                 print("Please specify a project path, path for images, masks, and a name prefix!")
     else:
+        #AIW the print statement is a stand-in for the function.
         print('saving new project to '+ PATH_TO_PROJECT)
 
 """#SFB Import and initialize the logging system
@@ -78,6 +83,7 @@ if args.quick:
     if PATH_TO_PROJECT == None:
         print('Unable to continue until project path is specified.')
     else:
+        #AIW the print statement is a stand-in for the function.
         print('Calling metaQuick works')
         #MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
 
@@ -86,5 +92,6 @@ if args.refine:
     if PATH_TO_PROJECT == None:
         print('Unable to continue until project path is specified.')
     else:
+        #AIW the print statement is a stand-in for the function.
         print('Running metaRefine on works')
         #MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)

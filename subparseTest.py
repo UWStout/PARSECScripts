@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 #AIW Global variables
@@ -21,7 +22,7 @@ project_parser.add_argument('--new', action='store_true', help='Saves project in
 
 #AIW Subparser for project options
 workflow_parser = subparsers.add_parser('workflow', help='Workflow options')
-workflow_parser.add_argument('--quick', action='store', help='Quick photogrammetry processing')
+workflow_parser.add_argument('--quick', action='store_true', help='Quick photogrammetry processing')
 workflow_parser.add_argument('--refine', action='store_true', help='Refinement of quickly processed photogrammetry data.')
 
 args = parser.parse_args()
@@ -30,4 +31,39 @@ args = parser.parse_args()
 if args.path:
     PATH_TO_PROJECT = args.path
 
-print(PATH_TO_PROJECT)
+if args.images:
+    PATH_TO_IMAGES = args.images
+
+if args.name:
+    IMAGE_PREFIX = args.name
+
+if args.masks:
+    PATH_TO_MASKS = args.masks
+
+if args.load:
+    print('Loading existing project')
+
+if args.new:
+    print('saving new project')
+
+#SFB Import and initialize the logging system
+#SFB This also redirects all MetaScan output
+#SFB Reads config from the file 'logging.inf'
+import Logger
+Logger.init(PATH_TO_IMAGES, IMAGE_PREFIX)
+logger = Logger.getLogger()
+
+import Metashape
+import MetaWork
+from MetaUtilsClass import MetaUtils
+
+MetaUtils.CHECK_VER(Metashape.app.version)
+MetaUtils.USE_GPU()
+
+#AIW Runs metaQuick from MEtaWork using the current project.ini
+if args.quick:
+    MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
+
+#AIW Runs metaRefine from MetaWork using the current project.ini
+if args.refine:
+    MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)

@@ -1,51 +1,65 @@
 import sys
 import argparse
 
-from ProjectPrefs import ProjectPrefs
+#AIW Global variables
+PATH_TO_PROJECT = None
+PATH_TO_IMAGES = None
+IMAGE_PREFIX = None
+PATH_TO_MASKS = None
 
-PATH_TO_IMAGES = ""
-IMAGE_PREFIX = ""
-PATH_TO_MASKS = ""
+#AIW Main parser
+parser = argparse.ArgumentParser(prog='PARSECParse', description='Command line UI for PARSEC photogrammetry processes.')
 
-parser = argparse.ArgumentParser(prog='PARSECParse.py', description='Program for processing photogrammetry data with Metashape')
+#AIW Parser group for project options
+project_parser = parser.add_argument_group('Project Options')
+project_parser.add_argument('--project', action='store', help='Specify project path.')
+project_parser.add_argument('--images', action='store', help='Path to the folder containing subject images.')
+project_parser.add_argument('--name', action='store', help='A prefix to apply to log and MetaShape file names.')
+project_parser.add_argument('--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
 
-parser.add_argument('-P', '--project', choices=['load', 'new'], required=True, help='Load a previous project or process a new one')
-parser.add_argument('-Q', '--quick', action="store_true", help='Quickly process photogrammetry data')
-parser.add_argument('-R', '--refine', action="store_true", help='Refines previously processed photogrammetry data')
+#AIW Mutually exclusive group forcing opening or creating project.ini.
+# - Only one of the following is allowed.
+projectHandle_parser = parser.add_mutually_exclusive_group(required=True)
+projectHandle_parser.add_argument('--load', action='store_true', help='Loads project from specified filepath.')
+projectHandle_parser.add_argument('--new', action='store_true', help='Saves project in location specified by filepath.')
+
+#AIW Mutually exclusive group for workflows.
+# - Only one of the following is allowed.
+workflow_parser = parser.add_mutually_exclusive_group()
+workflow_parser.add_argument('--quick', action='store_true', help='Quick photogrammetry processing.')
+workflow_parser.add_argument('--refine', action='store_true', help='Refinement of quickly processed photogrammetry data.')
 
 args = parser.parse_args()
 
-#AIW Loads a previous project.ini.
-if args.project == 'load':
-    prefs = input("Where would you like to load project from? ") + input("\nPlease enter project name: ") + (".ini")
+#AIW Changes global variables to parsed user input
+if args.project:
+    PATH_TO_PROJECT = args.project
 
-    prefs = ProjectPrefs()
+if args.images:
+    PATH_TO_IMAGES = args.images
 
-    PATH_TO_IMAGES = prefs.getPref(prefName='ImagePath')
-    print(PATH_TO_IMAGES)
-    IMAGE_PREFIX = prefs.getPref(prefName='NamePrefix')
-    print(IMAGE_PREFIX)
-    PATH_TO_MASKS = prefs.getPref(prefName='MaskPath',)
-    print(PATH_TO_MASKS)
+if args.name:
+    IMAGE_PREFIX = args.name
 
-#AIW Creates a new project.ini
-elif args.project == 'new':
-    PATH_TO_IMAGES = input("Please enter the path to images: ")
-    IMAGE_PREFIX = input("Please enter filename prefix: ")
-    PATH_TO_MASKS = input("Please enter file path and format for background images: ")
+if args.masks:
+    PATH_TO_MASKS = args.masks
 
-    prefs = ProjectPrefs()
+#AIW gets or creates project.ini through ProjectPrefs class/func
+if args.load:
+    if PATH_TO_PROJECT == None:
+        print("Please specify a path for the project file!")
+    else:
+        print('Loading existing project from '+ PATH_TO_PROJECT)
 
-    PATH_TO_IMAGES = prefs.getPref(prefName='ImagePath')
-    print(PATH_TO_IMAGES)
-    IMAGE_PREFIX = prefs.getPref(prefName='NamePrefix')
-    print(IMAGE_PREFIX)
-    PATH_TO_MASKS = prefs.getPref(prefName='MaskPath',)
-    print(PATH_TO_MASKS)
+if args.new:
+    if PATH_TO_IMAGES == None:
+        if PATH_TO_MASKS == None:
+            if IMAGE_PREFIX == None:
+                print("Please specify a project path, path for images, masks, and a name prefix!")
+    else:
+        print('saving new project to '+ PATH_TO_PROJECT)
 
-    prefs.saveConfig(IMAGE_PREFIX)
-
-#SFB Import and initialize the logging system
+"""#SFB Import and initialize the logging system
 #SFB This also redirects all MetaScan output
 #SFB Reads config from the file 'logging.inf'
 import Logger
@@ -57,12 +71,20 @@ import MetaWork
 from MetaUtilsClass import MetaUtils
 
 MetaUtils.CHECK_VER(Metashape.app.version)
-MetaUtils.USE_GPU()
+MetaUtils.USE_GPU()"""
 
 #AIW Runs metaQuick from MEtaWork using the current project.ini
 if args.quick:
-    MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
+    if PATH_TO_PROJECT == None:
+        print('Unable to continue until project path is specified.')
+    else:
+        print('Calling metaQuick works')
+        #MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
 
 #AIW Runs metaRefine from MetaWork using the current project.ini
 if args.refine:
-    MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
+    if PATH_TO_PROJECT == None:
+        print('Unable to continue until project path is specified.')
+    else:
+        print('Running metaRefine on works')
+        #MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)

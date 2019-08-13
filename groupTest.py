@@ -11,8 +11,8 @@ PATH_TO_MASKS = None
 parser = argparse.ArgumentParser(prog='subparseTest', description='Testing argument groups')
 
 #AIW Parser group for project options
-project_parser = parser.add_argument_group('project')
-project_parser.add_argument('--ppath', action='store', help='Specify project path.')
+project_parser = parser.add_argument_group('Project Options')
+project_parser.add_argument('--project', action='store', help='Specify project path.')
 project_parser.add_argument('--images', action='store', help='Path to the folder containing subject images.')
 project_parser.add_argument('--name', action='store', help='A prefix to apply to log and MetaShape file names.')
 project_parser.add_argument('--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
@@ -32,8 +32,8 @@ workflow_parser.add_argument('--refine', action='store_true', help='Refinement o
 args = parser.parse_args()
 
 #AIW Changes global variables to parsed user input
-if args.ppath:
-    PATH_TO_PROJECT = args.ppath
+if args.project:
+    PATH_TO_PROJECT = args.project
 
 if args.images:
     PATH_TO_IMAGES = args.images

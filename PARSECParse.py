@@ -65,16 +65,14 @@ if args.new:
     if PATH_TO_IMAGES == None:
         if PATH_TO_MASKS == None:
             if IMAGE_PREFIX == None:
-                print("Please specify a project path, path for images, masks, and a name prefix!")
+                print("Please specify a path for images, masks, and a name prefix!")
     else:
-        prefs = ProjectPrefs
-        print(PATH_TO_IMAGES)
-        print(PATH_TO_MASKS)
-        print(IMAGE_PREFIX)
-        PATH_TO_IMAGES = prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
-        IMAGE_PREFIX = prefs.setPref('IMAGE_PREFIX', IMAGE_PREFIX)
-        PATH_TO_MASKS = prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
-        print('saving new project to '+ PATH_TO_PROJECT)
+        prefs = ProjectPrefs ()
+        prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
+        prefs.setPref('IMAGE_PREFIX', IMAGE_PREFIX)
+        prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
+        #AIW Still working on this
+        print('saving new project to '+ PATH_TO_IMAGES)
         prefs.saveConfig(IMAGE_PREFIX + '.ini')
 
 """#SFB Import and initialize the logging system

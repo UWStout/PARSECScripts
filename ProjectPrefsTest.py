@@ -7,9 +7,9 @@ class ProjectPrefs:
     DEFAULT_FILENAME = 'project.ini'
     
     ALLOWED_PREFS = {
-        'PATH_TO_IMAGES': { None },
-        'IMAGE_PREFIX': { None },
-        'PATH_TO_MASKS': { None },
+        'PATH_TO_IMAGES': { 'section': 'PATHS' },
+        'IMAGE_PREFIX': { 'section': 'PROJECT' },
+        'PATH_TO_MASKS': { 'section': 'PATHS' },
     }
     
     #SFB Create a new ProjectPrefs that will read from the ini file
@@ -53,6 +53,7 @@ class ProjectPrefs:
         print('Path being used by saveConfig: ' + os.getcwd())
 
         #SFB Write out the current config file
+        #AIW NEEDS TO SAVE TO SAME PATH AS IMAGES
         with open(self.prefsFileName, 'w') as prefsFile:
             self.INIConfig.write(prefsFile)
     

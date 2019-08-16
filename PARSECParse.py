@@ -63,11 +63,10 @@ if args.load:
 
 
 if args.new:
-    if PATH_TO_IMAGES == None:
-        if PATH_TO_MASKS == None:
-            if IMAGE_PREFIX == None:
-                print("Please specify a path for images, masks, and a name prefix!")
-                sys.exit()
+    if PATH_TO_IMAGES == None or PATH_TO_MASKS == None or IMAGE_PREFIX == None:
+        print("Please specify a path for subject images, a path to the images for background subtraction and filename pattern, and a name prefix.")
+        sys.exit()
+
     else:
         prefs = ProjectPrefs ()
         prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)

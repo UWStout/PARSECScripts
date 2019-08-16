@@ -17,22 +17,22 @@ parser = argparse.ArgumentParser(prog='PARSECParse', description='Command line U
 
 #AIW Parser group for project options
 project_parser = parser.add_argument_group('Project Options')
-project_parser.add_argument('-P', '--project', action='store', help='Specify project path.')
-project_parser.add_argument('-I', '--images', action='store', help='Path to the folder containing subject images.')
-project_parser.add_argument('-NA', '--name', action='store', help='A prefix to apply to log and MetaShape file names.')
-project_parser.add_argument('-M', '--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
+project_parser.add_argument('-p', '--project', action='store', help='Specify project path.')
+project_parser.add_argument('-i', '--images', action='store', help='Path to the folder containing subject images.')
+project_parser.add_argument('-na', '--name', action='store', help='A prefix to apply to log and MetaShape file names.')
+project_parser.add_argument('-m', '--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
 
 #AIW Mutually exclusive group forcing opening or creating project.ini.
 # - Only one of the following is allowed.
 projectHandle_parser = parser.add_mutually_exclusive_group(required=True)
-projectHandle_parser.add_argument('-L', '--load', action='store_true', help='Loads project from specified filepath.')
-projectHandle_parser.add_argument('-N', '--new', action='store_true', help='Saves project in location specified by filepath.')
+projectHandle_parser.add_argument('-l', '--load', action='store_true', help='Loads project from specified filepath.')
+projectHandle_parser.add_argument('-n', '--new', action='store_true', help='Saves project in location specified by filepath.')
 
 #AIW Mutually exclusive group for workflows.
 # - Only one of the following is allowed.
 workflow_parser = parser.add_mutually_exclusive_group()
-workflow_parser.add_argument('-Q', '--quick', action='store_true', help='Quick photogrammetry processing.')
-workflow_parser.add_argument('-R', '--refine', action='store_true', help='Refinement of quickly processed photogrammetry data.')
+workflow_parser.add_argument('-q', '--quick', action='store_true', help='Quick photogrammetry processing.')
+workflow_parser.add_argument('-r', '--refine', action='store_true', help='Refinement of quickly processed photogrammetry data.')
 
 args = parser.parse_args()
 

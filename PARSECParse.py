@@ -7,7 +7,6 @@ import argparse
 from ProjectPrefs import ProjectPrefs
 
 #AIW Global variables
-PATH_TO_PROJECT = None
 PATH_TO_IMAGES = None
 PROJECT_NAME = None
 PATH_TO_MASKS = None
@@ -17,9 +16,8 @@ parser = argparse.ArgumentParser(prog='PARSECParse', description='Command line U
 
 #AIW Parser group for project options
 project_parser = parser.add_argument_group('Project Files')
-project_parser.add_argument('-p', '--project', action='store', help='Specify project path.')
 project_parser.add_argument('-i', '--images', action='store', help='Path to the folder containing subject images.')
-project_parser.add_argument('-na', '--name', action='store', help='A prefix to apply to log and MetaShape file names.')
+project_parser.add_argument('-p', '--project', action='store', help='A prefix to apply to log and MetaShape file names.')
 project_parser.add_argument('-m', '--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
 
 #AIW Mutually exclusive group forcing opening or creating project.ini.
@@ -37,27 +35,24 @@ workflow_parser.add_argument('-r', '--refine', action='store_true', help='Refine
 args = parser.parse_args()
 
 #AIW Changes global variables to parsed user input
-if args.project:
-    PATH_TO_PROJECT = args.project
-
 if args.images:
     PATH_TO_IMAGES = args.images
 
-if args.name:
-    PROJECT_NAME = args.name
+if args.project:
+    PROJECT_NAME = args.project
 
 if args.masks:
     PATH_TO_MASKS = args.masks
 
 #AIW gets or creates project.ini through ProjectPrefs class/func
 if args.load:
-    if PATH_TO_PROJECT == None:
+    if PROJECT_NAME == None:
         print("Please specify a path for the project file.")
         sys.exit()
     else:
         prefs = ProjectPrefs()
-        prefs.readConfig(PATH_TO_PROJECT)
-        print('Loading '+ PATH_TO_PROJECT)
+        prefs.readConfig(PROJECT_NAME)
+        print('Loading '+ PROJECT_NAME)
         PATH_TO_IMAGES = prefs.getPref('PATH_TO_IMAGES')
         PROJECT_NAME = prefs.getPref('PROJECT_NAME')
         PATH_TO_MASKS = prefs.getPref('PATH_TO_MASKS')

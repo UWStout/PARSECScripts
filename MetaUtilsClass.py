@@ -27,15 +27,15 @@ class MetaUtils:
     # Initialize all properties
     self.doc = doc
     self.imagePath = path
-    self.namePrefix = prefix
+    self.projectName = prefix
 
     # Check that we have a valid Document
     logger.debug ("Verifying / loading doc")
     if self.doc is None:
       self.initDoc()
     else:
-      self.imagePath, self.namePrefix = os.path.split(self.doc.path)
-      self.namePrefix, extension = os.path.splitext(self.namePrefix)
+      self.imagePath, self.projectName = os.path.split(self.doc.path)
+      self.projectName, extension = os.path.splitext(self.projectName)
 
     # Get reference to active chunk
     logger.debug ("Referencing chunk")
@@ -82,15 +82,15 @@ class MetaUtils:
     # - This must be done immediatly after getting reference to active DOM.
     # - .psx format will not save correctly otherwise.
     try:
-      self.doc.open("{}{}.psx" .format(self.imagePath, self.namePrefix), read_only=False, ignore_lock=True)
+      self.doc.open("{}{}.psx" .format(self.imagePath, self.projectName), read_only=False, ignore_lock=True)
       logger.info("Found existing PSX document.")
     except:
       logger.info("No existing PSX document, creating new.")
-      self.doc.save("{}{}.psx" .format(self.imagePath, self.namePrefix))
+      self.doc.save("{}{}.psx" .format(self.imagePath, self.projectName))
 
     if len(self.doc.chunks) < 1:
       self.doc.chunk = self.doc.addChunk()
-      self.doc.save("{}{}.psx" .format(self.imagePath, self.namePrefix))
+      self.doc.save("{}{}.psx" .format(self.imagePath, self.projectName))
 
   #AIW Automates correction processes for the chunk.
   def chunkCorrect(self):

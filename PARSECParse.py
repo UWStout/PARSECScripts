@@ -9,7 +9,7 @@ from ProjectPrefs import ProjectPrefs
 #AIW Global variables
 PATH_TO_PROJECT = None
 PATH_TO_IMAGES = None
-IMAGE_PREFIX = None
+PROJECT_NAME = None
 PATH_TO_MASKS = None
 
 #AIW Main parser
@@ -44,7 +44,7 @@ if args.images:
     PATH_TO_IMAGES = args.images
 
 if args.name:
-    IMAGE_PREFIX = args.name
+    PROJECT_NAME = args.name
 
 if args.masks:
     PATH_TO_MASKS = args.masks
@@ -59,27 +59,27 @@ if args.load:
         prefs.readConfig(PATH_TO_PROJECT)
         print('Loading '+ PATH_TO_PROJECT)
         PATH_TO_IMAGES = prefs.getPref('PATH_TO_IMAGES')
-        IMAGE_PREFIX = prefs.getPref('IMAGE_PREFIX')
+        PROJECT_NAME = prefs.getPref('PROJECT_NAME')
         PATH_TO_MASKS = prefs.getPref('PATH_TO_MASKS')
 
 if args.new:
-    if PATH_TO_IMAGES == None or PATH_TO_MASKS == None or IMAGE_PREFIX == None:
+    if PATH_TO_IMAGES == None or PATH_TO_MASKS == None or PROJECT_NAME == None:
         print("Please specify a path for subject images, a path to the images for background subtraction and filename pattern, and a name prefix.")
         sys.exit()
 
     else:
         prefs = ProjectPrefs()
         prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
-        prefs.setPref('IMAGE_PREFIX', IMAGE_PREFIX)
+        prefs.setPref('PROJECT_NAME', PROJECT_NAME)
         prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
-        prefs.saveConfig(IMAGE_PREFIX, PATH_TO_IMAGES)
+        prefs.saveConfig(PROJECT_NAME, PATH_TO_IMAGES)
         print('Saved new project to '+ PATH_TO_IMAGES)
 
 #SFB Import and initialize the logging system
 #SFB This also redirects all MetaScan output
 #SFB Reads config from the file 'logging.inf'
 import Logger
-Logger.init(PATH_TO_IMAGES, IMAGE_PREFIX)
+Logger.init(PATH_TO_IMAGES, PROJECT_NAME)
 logger = Logger.getLogger()
 
 import Metashape
@@ -95,7 +95,7 @@ if args.quick:
         print(PATH_TO_IMAGES)
         print('Unable to continue without images')
     else:
-        MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
+        MetaWork.metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS)
 
 #AIW Runs metaRefine from MetaWork using the current project.ini info
 if args.refine:
@@ -103,4 +103,4 @@ if args.refine:
         print(PATH_TO_IMAGES)
         print('Unable to continue without images')
     else:
-        MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
+        MetaWork.metaRefine(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS)

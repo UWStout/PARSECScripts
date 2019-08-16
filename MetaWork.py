@@ -128,11 +128,11 @@ def arcModel(chunk):
 """Workflow Options"""
 
 #AIW Quick photogrammetry processing.
-def metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS):
+def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
     logger.info("Starting quick processing")
 
     #SFB Creating an instance will initialize the doc, the logger and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
+    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
 
     #AIW Creates an image list and adds them to the current chunk.
     MU.loadImages()
@@ -153,11 +153,11 @@ def metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS):
     logger.info("Quick processing done")
 
 #AIW Refinement of quickly processed photogrammetry data.
-def metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX):
+def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
     logger.info("Starting refinement.")
     
     #SFB Creating an instance will initialize the doc, the logger and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
+    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
 
     #AIW Creates a dense cloud for general use.
     #genDenseCloud(MU.chunk)
@@ -169,11 +169,11 @@ def metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX):
     logger.info("Refinement done")
 
 #AIW The begining steps ofor any custom full processing workflow.
-def metaCustomStart(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS):
+def metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
     logger.info("Starting custom processing")
 
     #SFB Creating an instance will initialize the doc, the logger and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, IMAGE_PREFIX)
+    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
 
     #AIW Creates an image list and adds them to the current chunk.
     MU.loadImages()

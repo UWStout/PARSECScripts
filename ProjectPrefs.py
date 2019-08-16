@@ -8,7 +8,7 @@ class ProjectPrefs:
     
     ALLOWED_PREFS = {
         'PATH_TO_IMAGES': { 'section': 'PATHS' },
-        'IMAGE_PREFIX': { 'section': 'PROJECT' },
+        'PROJECT_NAME': { 'section': 'PROJECT' },
         'PATH_TO_MASKS': { 'section': 'PATHS' },
     }
     

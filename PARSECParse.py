@@ -4,7 +4,7 @@
 import sys
 import argparse
 
-from ProjectPrefsTest import ProjectPrefs
+from ProjectPrefs import ProjectPrefs
 
 #AIW Global variables
 PATH_TO_PROJECT = None
@@ -52,7 +52,7 @@ if args.masks:
 #AIW gets or creates project.ini through ProjectPrefs class/func
 if args.load:
     if PATH_TO_PROJECT == None:
-        print("Please specify a path for the project file!")
+        print("Please specify a path for the project file.")
         sys.exit()
     else:
         prefs = ProjectPrefs
@@ -72,9 +72,8 @@ if args.new:
         prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
         prefs.setPref('IMAGE_PREFIX', IMAGE_PREFIX)
         prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
-        #AIW Still working on this
-        print('saving new project to '+ PATH_TO_IMAGES)
-        prefs.saveConfig(IMAGE_PREFIX + '.ini')
+        prefs.saveConfig(IMAGE_PREFIX, PATH_TO_IMAGES)
+        print('Saved new project to '+ PATH_TO_IMAGES)
 
 #SFB Import and initialize the logging system
 #SFB This also redirects all MetaScan output

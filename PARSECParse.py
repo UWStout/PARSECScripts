@@ -55,8 +55,8 @@ if args.load:
         print("Please specify a path for the project file.")
         sys.exit()
     else:
-        prefs = ProjectPrefs
-        print('Loading existing project from '+ PATH_TO_PROJECT)
+        prefs = ProjectPrefs()
+        print('Loading '+ PATH_TO_PROJECT)
         PATH_TO_IMAGES = prefs.getPref('PATH_TO_IMAGES')
         IMAGE_PREFIX = prefs.getPref('IMAGE_PREFIX')
         PATH_TO_MASKS = prefs.getPref('PATH_TO_MASKS')
@@ -68,7 +68,7 @@ if args.new:
         sys.exit()
 
     else:
-        prefs = ProjectPrefs ()
+        prefs = ProjectPrefs()
         prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
         prefs.setPref('IMAGE_PREFIX', IMAGE_PREFIX)
         prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
@@ -89,20 +89,18 @@ from MetaUtilsClass import MetaUtils
 MetaUtils.CHECK_VER(Metashape.app.version)
 MetaUtils.USE_GPU()
 
-#AIW Runs metaQuick from MEtaWork using the current project.ini
+#AIW Runs metaQuick from MEtaWork using the current project.ini info
 if args.quick:
-    if PATH_TO_PROJECT == None:
-        print('Unable to continue until project path is specified.')
+    if PATH_TO_IMAGES == None:
+        print(PATH_TO_IMAGES)
+        print('Unable to continue without images')
     else:
-        #AIW the print statement is a stand-in for the function.
-        #print('Calling metaQuick works')
         MetaWork.metaQuick(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)
 
-#AIW Runs metaRefine from MetaWork using the current project.ini
+#AIW Runs metaRefine from MetaWork using the current project.ini info
 if args.refine:
-    if PATH_TO_PROJECT == None:
-        print('Unable to continue until project path is specified.')
+    if PATH_TO_IMAGES == None:
+        print(PATH_TO_IMAGES)
+        print('Unable to continue without images')
     else:
-        #AIW the print statement is a stand-in for the function.
-        #print('Running metaRefine on works')
         MetaWork.metaRefine(PATH_TO_IMAGES, IMAGE_PREFIX, PATH_TO_MASKS)

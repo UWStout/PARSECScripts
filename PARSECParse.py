@@ -15,16 +15,16 @@ PATH_TO_MASKS = None
 parser = argparse.ArgumentParser(prog='PARSECParse', description='Command line UI for PARSEC photogrammetry processes.')
 
 #AIW Parser group for project options
-project_parser = parser.add_argument_group('Project Files')
+project_parser = parser.add_argument_group('Project Data')
 project_parser.add_argument('-i', '--images', action='store', help='Path to the folder containing subject images.')
-project_parser.add_argument('-p', '--project', action='store', help='A prefix to apply to log and MetaShape file names.')
+project_parser.add_argument('-p', '--project', action='store', help='Project name applied as a prefix to log and MetaShape file names.')
 project_parser.add_argument('-m', '--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
 
 #AIW Mutually exclusive group forcing opening or creating project.ini.
 # - Only one of the following is allowed.
 projectHandle_parser = parser.add_mutually_exclusive_group(required=True)
 projectHandle_parser.add_argument('-l', '--load', action='store', help='Loads project from filepath specified with "-p" or "--project"')
-projectHandle_parser.add_argument('-n', '--new', action='store_true', help='Creates a new project using input specified with "-i", "-na", and "-m"')
+projectHandle_parser.add_argument('-n', '--new', action='store_true', help='Creates a new project using input specified with "-i", "-p", and "-m"')
 
 #AIW Mutually exclusive group for workflows.
 # - Only one of the following is allowed.

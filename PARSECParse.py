@@ -15,7 +15,7 @@ PATH_TO_MASKS = None
 parser = argparse.ArgumentParser(prog='PARSECParse', description='Command line UI for PARSEC photogrammetry processes.')
 
 #AIW Parser group for project options
-project_parser = parser.add_argument_group('Project Data')
+project_parser = parser.add_argument_group('File Info')
 project_parser.add_argument('-i', '--images', action='store', help='Path to the folder containing subject images.')
 project_parser.add_argument('-p', '--project', action='store', help='Project name applied as a prefix to log and MetaShape file names.')
 project_parser.add_argument('-m', '--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
@@ -23,7 +23,7 @@ project_parser.add_argument('-m', '--masks', action='store', help='Path to the i
 #AIW Mutually exclusive group forcing opening or creating project.ini.
 # - Only one of the following is allowed.
 projectHandle_parser = parser.add_mutually_exclusive_group(required=True)
-projectHandle_parser.add_argument('-l', '--load', action='store', help='Loads project from filepath specified with "-p" or "--project"')
+projectHandle_parser.add_argument('-l', '--load', action='store', help='Loads project using the specified filepath')
 projectHandle_parser.add_argument('-n', '--new', action='store_true', help='Creates a new project using input specified with "-i", "-p", and "-m"')
 
 #AIW Mutually exclusive group for workflows.
@@ -34,7 +34,7 @@ workflow_parser.add_argument('-r', '--refine', action='store_true', help='Refine
 
 args = parser.parse_args()
 
-#AIW Changes global variables to parsed user input
+#AIW Changes global variables to parsed user input.
 if args.images:
     PATH_TO_IMAGES = args.images
 
@@ -44,19 +44,22 @@ if args.project:
 if args.masks:
     PATH_TO_MASKS = args.masks
 
-#AIW gets or creates project.ini through ProjectPrefs class/func
+#AIW Tries to load the specified project.
 if args.load:
-    if PROJECT_NAME == None:
-        print("Please specify a path for the project file.")
-        sys.exit()
-    else:
+    try:
+        path = vars(args)
         prefs = ProjectPrefs()
-        prefs.readConfig(PROJECT_NAME)
-        print('Loading '+ PROJECT_NAME)
+        prefs.readConfig(path.get('load'))
+        print('Loading '+ path.get('load'))
         PATH_TO_IMAGES = prefs.getPref('PATH_TO_IMAGES')
         PROJECT_NAME = prefs.getPref('PROJECT_NAME')
         PATH_TO_MASKS = prefs.getPref('PATH_TO_MASKS')
+    
+    except:
+        print(path.get('load') + " doesn't exist!")
+        sys.exit()
 
+#AIW Creates a new project based on parsed user input.
 if args.new:
     if PATH_TO_IMAGES == None or PATH_TO_MASKS == None or PROJECT_NAME == None:
         print("Please specify a path for subject images, a path to the images for background subtraction and filename pattern, and a name prefix.")
@@ -98,4 +101,4 @@ if args.refine:
         print(PATH_TO_IMAGES)
         print('Unable to continue without images')
     else:
-        MetaWork.metaRefine(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS)
+        MetaWork.metaRefine(PATH_TO_IMAGES, PROJECT_NAME)

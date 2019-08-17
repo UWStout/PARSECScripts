@@ -170,3 +170,19 @@ def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
 
     MU.doc.save()
     logger.info("Refinement done")
+
+#AIW The begining steps for any custom full processing workflow.
+def metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
+    logger.info("Starting custom processing")
+
+    #SFB Creating an instance will initialize the doc, the logger and the paths
+    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
+
+    #AIW Creates an image list and adds them to the current chunk.
+    MU.loadImages()
+
+    #AIW Places markers on coded targets in images.
+    MU.detectMarkers()
+
+    #AIW Creates masks.
+    MU.autoMask(PATH_TO_MASKS)

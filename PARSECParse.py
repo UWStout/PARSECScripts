@@ -31,6 +31,22 @@ projectHandle_parser.add_argument('-n', '--new', action='store_true', help='Crea
 workflow_parser = parser.add_mutually_exclusive_group()
 workflow_parser.add_argument('-q', '--quick', action='store_true', help='Quick photogrammetry processing.')
 workflow_parser.add_argument('-r', '--refine', action='store_true', help='Refinement of quickly processed photogrammetry data.')
+workflow_parser.add_argument('-c', '--custom', action='store_true', help='Needed for running a custom photogrammetry data processing workflow.')
+
+#AIW Parser group for custom workflow options.
+project_parser = parser.add_argument_group('Custom Workflow Options')
+project_parser.add_argument('-qa', '--quickAlign', action='store_true', help='Preforms quick quality image matching.')
+project_parser.add_argument('-ga', '--genAlign', action='store_true', help='Preforms general quality image matching.')
+project_parser.add_argument('-aa', '--arcAlign', action='store_true', help='Preforms archival quality image matching.')
+project_parser.add_argument('-gd', '--genDense', action='store_true', help='Creates general quality dense cloud. Requires image matching to have been run.')
+project_parser.add_argument('-ad', '--arcDense', action='store_true', help='Creates archival quality dense cloud. Requires image matching to have been run.')
+project_parser.add_argument('-qm', '--quickMod', action='store_true', help='Creates a low-quality model. Requires image matching to have been run.')
+project_parser.add_argument('-gm', '--genMod', action='store_true', help='Creates a general-quality model. Requires general quality or better image matching & dense cloud creation to have been run.')
+project_parser.add_argument('-am', '--arcMod', action='store_true', help='Creates an archival-quality model. Requires general quality or better image matching & dense cloud creation to have been run.')
+
+#AIW Parser group for utilities.
+project_parser = parser.add_argument_group('Utilities')
+
 
 args = parser.parse_args()
 
@@ -87,18 +103,34 @@ from MetaUtilsClass import MetaUtils
 MetaUtils.CHECK_VER(Metashape.app.version)
 MetaUtils.USE_GPU()
 
-#AIW Runs metaQuick from MEtaWork using the current project.ini info
+#AIW Runs metaQuick from MetaWork using the current project.ini info
 if args.quick:
-    if PATH_TO_IMAGES == None:
+    if PROJECT_NAME == None:
         print(PATH_TO_IMAGES)
-        print('Unable to continue without images')
+        print('Unable to continue without project')
     else:
         MetaWork.metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS)
 
 #AIW Runs metaRefine from MetaWork using the current project.ini info
 if args.refine:
-    if PATH_TO_IMAGES == None:
+    if PROJECT_NAME == None:
         print(PATH_TO_IMAGES)
-        print('Unable to continue without images')
+        print('Unable to continue without project')
     else:
         MetaWork.metaRefine(PATH_TO_IMAGES, PROJECT_NAME)
+
+#AIW Runs metaCustomStart from MetaWork using the current project.ini info
+if args.custom:
+    if PROJECT_NAME == None:
+        print(PATH_TO_IMAGES)
+        print('Unable to continue without project')
+    else:
+        MetaWork.metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS)
+
+#AIW Custom workflow options to be run after metaCustomStart
+if args.quickAlign:
+    if PROJECT_NAME == None:
+        print(PATH_TO_IMAGES)
+        print('Unable to continue without project')
+    else:
+        MetaWork.metaCustomStart(MU.chunk)

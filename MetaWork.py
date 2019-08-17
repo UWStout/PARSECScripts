@@ -8,7 +8,7 @@ logger = Logger.getLogger('Utils')
 import Metashape
 
 """Alignment Options"""
-#AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for quick results.
+#AIW Automates Metashape GUI process "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for quick results.
 def quickAlign(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
     # - First step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points. 
@@ -23,7 +23,7 @@ def quickAlign(chunk):
     chunk.alignCameras()
     logger.info ("Done aligning photos")
 
-#AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for general results.
+#AIW Automates Metashape GUI process "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for general results.
 def genAlign(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
     # - First step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points. 
@@ -38,7 +38,7 @@ def genAlign(chunk):
     chunk.alignCameras()
     logger.info ("Done aligning photos")
 
-#AIW Automates Metashape GUI processe "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for archival results.
+#AIW Automates Metashape GUI process "Add Photos", "Tool->Detect Markers", "Workflow->Align Photos" with settings for archival results.
 def arcAlign(chunk):
     #AIW From API "Perform image matching for the chunk frame." 
     # - First step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points. 
@@ -83,7 +83,7 @@ def arcDenseCloud(chunk):
 
 """Model Options"""
 
-#AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for quick results.
+#AIW Automates Metashape GUI "Workflow" processs "Build Mesh" and "Build Texture" with settings for quick results.
 def quickModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
     logger.info("Quickly generating textured 3D model")
@@ -97,7 +97,7 @@ def quickModel(chunk):
     chunk.buildTexture(blending=Metashape.MosaicBlending, size=(1024), fill_holes=False)
     logger.info ("Done generating model")
 
-#AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for general use.
+#AIW Automates Metashape GUI "Workflow" processs "Build Mesh" and "Build Texture" with settings for general use.
 def genModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
     logger.info("Building general quality textured 3D model")
@@ -111,7 +111,7 @@ def genModel(chunk):
     chunk.buildTexture(blending=Metashape.MosaicBlending, size=(4096), fill_holes=False)
     logger.info ("Done building model")
 
-#AIW Automates Metashape GUI "Workflow" processes "Build Mesh" and "Build Texture" with settings for archival use.
+#AIW Automates Metashape GUI "Workflow" processs "Build Mesh" and "Build Texture" with settings for archival use.
 def arcModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds accurate mesh without generating extra geometry to be used in the last steps.
     logger.info("Building archival quality textured 3D model")
@@ -137,6 +137,9 @@ def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
     #AIW Creates an image list and adds them to the current chunk.
     MU.loadImages()
 
+    #AIW Places markers on coded targets in images.
+    MU.detectMarkers()
+
     #AIW Creates masks.
     MU.autoMask(PATH_TO_MASKS)
 
@@ -152,7 +155,7 @@ def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
     MU.doc.save()
     logger.info("Quick processing done")
 
-#AIW Refinement of quickly processed photogrammetry data.
+#AIW Refinement of quickly processd photogrammetry data.
 def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
     logger.info("Starting refinement.")
     
@@ -168,7 +171,7 @@ def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
     MU.doc.save()
     logger.info("Refinement done")
 
-#AIW The begining steps ofor any custom full processing workflow.
+#AIW The begining steps for any custom full processing workflow.
 def metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
     logger.info("Starting custom processing")
 
@@ -177,6 +180,9 @@ def metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
 
     #AIW Creates an image list and adds them to the current chunk.
     MU.loadImages()
+
+    #AIW Places markers on coded targets in images.
+    MU.detectMarkers()
 
     #AIW Creates masks.
     MU.autoMask(PATH_TO_MASKS)

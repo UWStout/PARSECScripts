@@ -160,7 +160,7 @@ def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
     MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
 
     #AIW Creates a dense cloud for general use.
-    #genDenseCloud(MU.chunk)
+    genDenseCloud(MU.chunk)
 
     #AIW Creates a modelfor general use.
     genModel(MU.chunk)

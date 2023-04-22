@@ -13,7 +13,7 @@ logger = Logger.getLogger('Utils')
     a new document ready to be filled with images and processed later """
 class MetaUtils:
   """ Minimum compatible version of MetaShape """
-  COMPATIBLE_VERSION = "1.5"
+  COMPATIBLE_VERSION = "2.0"
 
   # SFB Common image file extensions
   IMAGE_FILE_EXTENSION_LIST = ('.jpg', '.jpeg', '.png', '.tif', '.tiff')
@@ -81,16 +81,17 @@ class MetaUtils:
     # - A new project is created if an existing project is not available.
     # - This must be done immediately after getting reference to active DOM.
     # - .psx format will not save correctly otherwise.
+    doc_path=os.path.join(self.imagePath, self.projectName + ".psx")
     try:
-      self.doc.open("{}{}.psx" .format(self.imagePath, self.projectName), read_only=False, ignore_lock=True)
+      self.doc.open(doc_path, read_only=False, ignore_lock=True)
       logger.info("Found existing PSX document.")
     except:
       logger.info("No existing PSX document, creating new.")
-      self.doc.save("{}{}.psx" .format(self.imagePath, self.projectName))
+      self.doc.save(doc_path)
 
     if len(self.doc.chunks) < 1:
       self.doc.chunk = self.doc.addChunk()
-      self.doc.save("{}{}.psx" .format(self.imagePath, self.projectName))
+      self.doc.save(doc_path)
 
   #AIW Automates correction processes for the chunk.
   def chunkCorrect(self):
@@ -111,7 +112,7 @@ class MetaUtils:
     #SFB Loop over all files in image path and add if an image type
     for filename in os.listdir(self.imagePath):
       if filename.lower().endswith(MetaUtils.IMAGE_FILE_EXTENSION_LIST):
-        images.append(self.imagePath + filename)
+        images.append(os.path.join(self.imagePath, filename))
 
     #AIW From API "Add a list of photos to the chunk."
     self.chunk.addPhotos(images)

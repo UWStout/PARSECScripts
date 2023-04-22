@@ -16,7 +16,7 @@ def quickAlign(chunk):
     # - Accuracy below MediumAccuracy consistently results in failed camera alignment.
     # - HighAccuracy is used in this script as the results are better for and the time added is negligible.
     logger.info ("Quickly aligning photos")
-    chunk.matchPhotos(accuracy=Metashape.HighAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(4000))
+    chunk.matchPhotos(downscale=2, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(4000))
 
     #AIW From API "Perform photo alignment for the chunk."
     # - Second step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points.
@@ -31,7 +31,7 @@ def genAlign(chunk):
     # - Accuracy below MediumAccuracy consistently results in failed camera alignment.
     # - HighAccuracy is used in this script as the results are better for and the time added is negligible.
     logger.info ("Aligning photos for general quality")
-    chunk.matchPhotos(accuracy=Metashape.HighAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0))
+    chunk.matchPhotos(downscale=1, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0))
 
     #AIW From API "Perform photo alignment for the chunk."
     # - Second step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points.
@@ -46,7 +46,7 @@ def arcAlign(chunk):
     # - Accuracy below MediumAccuracy consistently results in failed camera alignment.
     # - HighAccuracy is used in this script as the results are better for and the time added is negligible.
     logger.info ("Quickly aligning photos")
-    chunk.matchPhotos(accuracy=Metashape.HighestAccuracy, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0))
+    chunk.matchPhotos(downscale=0, generic_preselection=True, filter_mask=True, mask_tiepoints=False, keypoint_limit=(0), tiepoint_limit=(0))
 
     #AIW From API "Perform photo alignment for the chunk."
     # - Second step of the Metashape GUI "Workflow" process "Align Photos", which generates the Sparse Cloud/Tie Points.
@@ -87,42 +87,42 @@ def arcDenseCloud(chunk):
 def quickModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
     logger.info("Quickly generating textured 3D model")
-    chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.PointCloudData, vertex_colors=True)
+    chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source_data=Metashape.TiePointsData, vertex_colors=True)
 
     #AIW From API "Generate uv mapping for the model."
     chunk.buildUV(adaptive_resolution=True)
 
     #AIW From API "Generate texture for the chunk."
     # - Generates a basic texture for the 3D model.
-    chunk.buildTexture(blending=Metashape.MosaicBlending, size=(1024), fill_holes=False)
+    chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=(1024), fill_holes=False)
     logger.info ("Done generating model")
 
 #AIW Automates Metashape GUI "Workflow" process "Build Mesh" and "Build Texture" with settings for general use.
 def genModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds mesh to be used in the last steps.
     logger.info("Building general quality textured 3D model")
-    chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True)
+    chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation, face_count=Metashape.HighFaceCount, source_data=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True)
 
     #AIW From API "Generate uv mapping for the model."
     chunk.buildUV(adaptive_resolution=True)
 
     #AIW From API "Generate texture for the chunk."
     # - Generates a 4k texture for the 3D model.
-    chunk.buildTexture(blending=Metashape.MosaicBlending, size=(4096), fill_holes=False)
+    chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=(4096), fill_holes=False)
     logger.info ("Done building model")
 
 #AIW Automates Metashape GUI "Workflow" process "Build Mesh" and "Build Texture" with settings for archival use.
 def arcModel(chunk):
     #AIW From API "Generate model for the chunk frame." Builds accurate mesh without generating extra geometry to be used in the last steps.
     logger.info("Building archival quality textured 3D model")
-    chunk.buildModel(surface=Metashape.Arbitrary, interpolation=Metashape.DisabledInterpolation, face_count=Metashape.HighFaceCount, source=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True)
+    chunk.buildModel(surface_type=Metashape.Arbitrary, interpolation=Metashape.DisabledInterpolation, face_count=Metashape.HighFaceCount, source_data=Metashape.DenseCloudData, vertex_colors=True, keep_depth=True)
 
     #AIW From API "Generate uv mapping for the model."
     chunk.buildUV(adaptive_resolution=True)
 
     #AIW From API "Generate texture for the chunk."
     # - Generates a 16k texture for the 3D model.
-    chunk.buildTexture(blending=Metashape.MosaicBlending, size=(16384), fill_holes=False)
+    chunk.buildTexture(blending_mode=Metashape.MosaicBlending, texture_size=(16384), fill_holes=False)
     logger.info ("Done building model")
 
 """Workflow Options"""
@@ -141,7 +141,8 @@ def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
     MU.detectMarkers()
 
     #AIW Creates masks.
-    MU.autoMask(PATH_TO_MASKS)
+    if PATH_TO_MASKS is not None:
+        MU.autoMask(PATH_TO_MASKS)
 
     #AIW Aligns photos.
     quickAlign(MU.chunk)

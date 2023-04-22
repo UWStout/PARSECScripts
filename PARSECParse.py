@@ -75,7 +75,7 @@ if args.load:
 
 #AIW Creates a new project based on parsed user input.
 if args.new:
-    if PATH_TO_IMAGES == None or PATH_TO_MASKS == None or PROJECT_NAME == None:
+    if PATH_TO_IMAGES == None or PROJECT_NAME == None:
         print("Please specify a path for subject images, a path to the images for background subtraction and filename pattern, and a name prefix.")
         sys.exit()
 
@@ -83,7 +83,8 @@ if args.new:
         prefs = ProjectPrefs()
         prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
         prefs.setPref('PROJECT_NAME', PROJECT_NAME)
-        prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
+        if PATH_TO_MASKS != None:
+            prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
         prefs.saveConfig(PROJECT_NAME, PATH_TO_IMAGES)
         print('Saved new project to '+ PATH_TO_IMAGES)
 

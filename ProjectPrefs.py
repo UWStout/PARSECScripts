@@ -30,6 +30,7 @@ class ProjectPrefs:
 
         #SFB Try to read the config file allowing failure
         try:
+            print("reading from " + self.prefsFileName)
             self.INIConfig.read(self.prefsFileName)
         except:
             pass

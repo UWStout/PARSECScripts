@@ -45,15 +45,15 @@ def redirectCStdout(filename):
     stdoutFD = 1
     if platform.system() != 'Windows':
       stdoutFD = sys.stdout.fileno()
-    newstdout = os.dup(stdoutFD)
+    new_stdout = os.dup(stdoutFD)
 
-    # Create a file and overwrite filedescriptor 1 to be that then close it
+    # Create a file and overwrite file descriptor 1 to be that then close it
     stdoutFile = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC)
     os.dup2(stdoutFile, 1)
     os.close(stdoutFile)
 
     # Use the original stdout to still be able to print to stdout within python
-    sys.stdout = os.fdopen(newstdout, 'w')
+    sys.stdout = os.fdopen(new_stdout, 'w')
 
   except Exception as e:
     print("Error: something went wrong while redirecting MetaShape output.", file=sys.stderr)
@@ -63,8 +63,8 @@ def getLogger(name=None):
   global _LOGGER_INITIALIZED_
   if not _LOGGER_INITIALIZED_:
     return None
-    
-  if name is None or name == "":  
+
+  if name is None or name == "":
     return logging.getLogger("MetaPy")
 
   else:

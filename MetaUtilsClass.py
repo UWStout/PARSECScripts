@@ -1,4 +1,4 @@
-"""Reworking of MetaUtils as a Class""" 
+"""Reworking of MetaUtils as a Class"""
 
 import Metashape
 import sys
@@ -13,7 +13,7 @@ logger = Logger.getLogger('Utils')
     a new document ready to be filled with images and processed later """
 class MetaUtils:
   """ Minimum compatible version of MetaShape """
-  COMPATABLE_VERSION = "1.5"
+  COMPATIBLE_VERSION = "1.5"
 
   # SFB Common image file extensions
   IMAGE_FILE_EXTENSION_LIST = ('.jpg', '.jpeg', '.png', '.tif', '.tiff')
@@ -48,14 +48,14 @@ class MetaUtils:
 
     logger.debug ("> doc is " + str(self.doc))
     logger.debug ("> chunk is " + str(self.chunk))
-    
+
   #AIW Check compatibility. Modified from public Agisoft scripts.
   @staticmethod
   def CHECK_VER(metashapeVersionString):
     actualVersion = ".".join(metashapeVersionString.split('.')[:2])
-    if actualVersion != MetaUtils.COMPATABLE_VERSION:
-      logger.warning("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
-      raise Exception("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATABLE_VERSION))
+    if actualVersion != MetaUtils.COMPATIBLE_VERSION:
+      logger.warning("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATIBLE_VERSION))
+      raise Exception("Incompatible Metashape version: {} != {}".format(actualVersion, MetaUtils.COMPATIBLE_VERSION))
     else:
       logger.info ("Metashape version: " + actualVersion + " OK")
 
@@ -77,9 +77,9 @@ class MetaUtils:
     #SFB Get reference to the currently active DOM
     self.doc = Metashape.Document()
 
-    #AIW Attemtps to open an existing project. 
+    #AIW Attempts to open an existing project.
     # - A new project is created if an existing project is not available.
-    # - This must be done immediatly after getting reference to active DOM.
+    # - This must be done immediately after getting reference to active DOM.
     # - .psx format will not save correctly otherwise.
     try:
       self.doc.open("{}{}.psx" .format(self.imagePath, self.projectName), read_only=False, ignore_lock=True)
@@ -113,7 +113,7 @@ class MetaUtils:
       if filename.lower().endswith(MetaUtils.IMAGE_FILE_EXTENSION_LIST):
         images.append(self.imagePath + filename)
 
-    #AIW From API "Add a list of photos to the chunk." 
+    #AIW From API "Add a list of photos to the chunk."
     self.chunk.addPhotos(images)
     logger.info("Done Loading Images")
     logger.debug(images)
@@ -126,8 +126,8 @@ class MetaUtils:
 
     logger.info("Importing Backgrounds for Masking")
 
-    #AIW From API "Import masks for multiple cameras." 
-    # - Import background images for masking out the background. 
+    #AIW From API "Import masks for multiple cameras."
+    # - Import background images for masking out the background.
     # - Camera must be referenced for this step to work.
     self.chunk.importMasks(path=PATH_TO_MASKS, source=Metashape.MaskSourceBackground,
       operation=Metashape.MaskOperationReplacement, tolerance=10)

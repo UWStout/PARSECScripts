@@ -46,8 +46,6 @@ project_parser.add_argument('-am', '--arcMod', action='store_true', help='Create
 
 #AIW Parser group for utilities.
 project_parser = parser.add_argument_group('Utilities')
-
-
 args = parser.parse_args()
 
 #AIW Changes global variables to parsed user input.
@@ -70,7 +68,7 @@ if args.load:
         PATH_TO_IMAGES = prefs.getPref('PATH_TO_IMAGES')
         PROJECT_NAME = prefs.getPref('PROJECT_NAME')
         PATH_TO_MASKS = prefs.getPref('PATH_TO_MASKS')
-    
+
     except:
         print(path.get('load') + " doesn't exist!")
         sys.exit()

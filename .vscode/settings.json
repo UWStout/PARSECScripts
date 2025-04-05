@@ -11,10 +11,11 @@
     "linalg",
     "Metashape",
     "noparity",
+    "prefs",
     "preselection",
     "qualname",
     "tiepoint",
     "tiepoints",
     "WRONLY"
-]
+  ]
 }

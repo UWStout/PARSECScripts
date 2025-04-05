@@ -13,28 +13,31 @@ class ProjectPrefs:
         'PATH_TO_MASKS': {'section': 'PATHS'},
     }
 
+    prefsFileName = None
+
     # SFB Create a new ProjectPrefs that will read from the ini file
     def __init__(self, prefsFilename=None):
-        # SFB Use the default filename if none was provided
-        if not prefsFilename:
-            prefsFileName = ProjectPrefs.DEFAULT_FILENAME
+        if prefsFilename is not None:
+            self.prefsFileName = prefsFilename
+        else:
+            self.prefsFileName = ProjectPrefs.DEFAULT_FILENAME
 
         # SFB Attempt to read the ini preferences first
-        self.readConfig(prefsFileName)
+        if self.prefsFileName is not None:
+            self.readConfig()
 
-    def readConfig(self, prefsFileName):
+    def readConfig(self, prefsFileName=None):
         # SFB Initialize the config parser
-        if prefsFileName:
+        if prefsFileName is not None:
             self.prefsFileName = prefsFileName
         self.INIConfig = ConfigParser()
         self.INIConfig.optionxform = str
 
         # SFB Try to read the config file allowing failure
         try:
-            print("reading from " + self.prefsFileName)
             self.INIConfig.read(self.prefsFileName)
-        except:
-            pass
+        except Exception as e:
+            print('No existing config file')
 
         # SFB Check all allowed preferences in ini file
         for name, argument in ProjectPrefs.ALLOWED_PREFS.items():
@@ -71,10 +74,14 @@ class ProjectPrefs:
     # SFB Retrieve value of a given preference (throws an exception on unknown
     # preferences)
     def getPref(self, prefName):
-        # SFB check the preference name
+        # check the preference name
         if prefName not in ProjectPrefs.ALLOWED_PREFS:
             raise Exception('Invalid preference name - {}'.format(prefName))
 
-        # SFB Retrieve and return the preference value
+        # Retrieve and return the preference value
         pref = ProjectPrefs.ALLOWED_PREFS[prefName]
-        return self.INIConfig[pref['section']][prefName]
+        if prefName in self.INIConfig[pref['section']]:
+            return self.INIConfig[pref['section']][prefName]
+        else:
+            print('Preference {} not found in config file'.format(prefName))
+            return None

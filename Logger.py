@@ -41,10 +41,13 @@ def init(logFilePath, logFileName):
     LF_Logger = logging.getLogger("MetaPy")
     LF_Logger.addHandler(LF_Handler)
 
+    # Mark the logger as initialized
     _LOGGER_INITIALIZED_ = True
 
 
 def redirectCStdout(filename):
+    print("Redirecting std output to file: {}".format(filename), file=sys.stderr)
+
     # We guard against exceptions in here and if something goes wrong
     # just print a warning and give up.
     try:
@@ -73,9 +76,9 @@ def redirectCStdout(filename):
 
 
 def getLogger(name=None):
-    global _LOGGER_INITIALIZED_
     if not _LOGGER_INITIALIZED_:
-        return None
+        print("Error: Retrieving logger before initialized.", file=sys.stderr)
+        return
 
     if name is None or name == "":
         return logging.getLogger("MetaPy")

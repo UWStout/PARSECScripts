@@ -17,5 +17,11 @@
     "tiepoint",
     "tiepoints",
     "WRONLY"
+  ],
+  "logViewer.watch": [
+    {
+        "title": "Local Logs",
+        "pattern": "./*.txt"
+    }
   ]
 }

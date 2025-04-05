@@ -4,7 +4,7 @@ import Metashape
 import os
 
 import Logger
-logger = Logger.getLogger('Utils')
+logger = None
 
 """ This object contains general functions to help process a MetaShape
     document object It should be passed an existing document when
@@ -14,7 +14,7 @@ logger = Logger.getLogger('Utils')
 
 class MetaUtils:
     """ Minimum compatible version of MetaShape """
-    COMPATIBLE_VERSION = "2.0"
+    COMPATIBLE_VERSION = "2.2"
 
     # SFB Common image file extensions
     IMAGE_FILE_EXTENSION_LIST = ('.jpg', '.jpeg', '.png', '.tif', '.tiff')
@@ -52,9 +52,16 @@ class MetaUtils:
         logger.debug("> doc is " + str(self.doc))
         logger.debug("> chunk is " + str(self.chunk))
 
-    # AIW Check compatibility. Modified from public Agisoft scripts.
+    @staticmethod
+    def ensureLoggerReady():
+        global logger
+        if logger is None:
+            logger = Logger.getLogger('MetaUtils')
+
+    # Check compatibility. Modified from public Agisoft scripts.
     @staticmethod
     def CHECK_VER(metashapeVersionString):
+        MetaUtils.ensureLoggerReady()
         actualVersion = ".".join(metashapeVersionString.split('.')[:2])
         if actualVersion != MetaUtils.COMPATIBLE_VERSION:
             logger.warning("Incompatible Metashape version: {} != {}".format(
@@ -67,7 +74,9 @@ class MetaUtils:
     # AIW Enables GPU processing in Metashape.
     @staticmethod
     def USE_GPU():
-        # SFB Get number of GPUs available
+        MetaUtils.ensureLoggerReady()
+
+        # Get number of GPUs available
         gpuList = Metashape.app.enumGPUDevices()
         gpuCount = len(gpuList)
 
@@ -79,10 +88,12 @@ class MetaUtils:
 
     # SFB Import images and create a new doc
     def initDoc(self):
+        MetaUtils.ensureLoggerReady()
+
         # SFB Get reference to the currently active DOM
         self.doc = Metashape.Document()
 
-        # AIW Attempts to open an existing project.
+        # Attempts to open an existing project.
         # - A new project is created if an existing project is not available.
         # - This must be done immediately after getting reference to\
         #   active DOM.
@@ -101,6 +112,8 @@ class MetaUtils:
 
     # AIW Automates correction processes for the chunk.
     def chunkCorrect(self):
+        MetaUtils.ensureLoggerReady()
+
         # SFB Changes the dimensions of the chunk's reconstruction volume.
         logger.info("Correcting chunk")
         NEW_REGION = self.chunk.region
@@ -110,6 +123,8 @@ class MetaUtils:
 
     # AIW Creates an image list and adds them to the current chunk.
     def loadImages(self):
+        MetaUtils.ensureLoggerReady()
+
         # SFB Build the list of image filenames
         images = []
 
@@ -127,6 +142,8 @@ class MetaUtils:
 
     # AIW Automates masking.
     def autoMask(self, PATH_TO_MASKS):
+        MetaUtils.ensureLoggerReady()
+
         # SFB Ensure there are images to mask first
         if len(self.chunk.cameras) <= 0:
             raise Exception("Cannot mask before adding images")
@@ -144,6 +161,8 @@ class MetaUtils:
 
     # AIW Places markers on coded targets in images.
     def detectMarkers(self):
+        MetaUtils.ensureLoggerReady()
+
         logger.info("Detecting markers")
         self.chunk.detectMarkers(
             tolerance=50, filter_mask=False, inverted=False,
@@ -152,6 +171,8 @@ class MetaUtils:
 
     # AIW Displays marker info.
     def outputMarkers(self):
+        MetaUtils.ensureLoggerReady()
+
         logger.info("Outputting Marker Info")
         for marker in self.chunk.markers:
             logger.info("{} / {} - {}".format(marker.key,

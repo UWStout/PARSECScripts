@@ -4,13 +4,18 @@
 import Metashape
 from MetaUtilsClass import MetaUtils
 import Logger
-logger = Logger.getLogger('Utils')
+logger = None
 
+def ensureLoggerReady():
+    global logger
+    if logger is None:
+        logger = Logger.getLogger('MetaUtils')
 
 """Alignment Options"""
 # AIW Automates Metashape GUI process "Add Photos", "Tool->Detect Markers",
 # "Workflow->Align Photos" with settings for quick results.
 def quickAlign(chunk):
+    ensureLoggerReady()
     # AIW From API "Perform image matching for the chunk frame."
     # - First step of the Metashape GUI "Workflow" process "Align Photos",
     #   which generates the Sparse Cloud/Tie Points.
@@ -33,6 +38,7 @@ def quickAlign(chunk):
 # AIW Automates Metashape GUI process "Add Photos", "Tool->Detect Markers",
 # "Workflow->Align Photos" with settings for general results.
 def genAlign(chunk):
+    ensureLoggerReady()
     # AIW From API "Perform image matching for the chunk frame."
     # - First step of the Metashape GUI "Workflow" process "Align Photos",
     #   which generates the Sparse Cloud/Tie Points.
@@ -55,6 +61,7 @@ def genAlign(chunk):
 # AIW Automates Metashape GUI process "Add Photos", "Tool->Detect Markers",
 # "Workflow->Align Photos" with settings for archival results.
 def arcAlign(chunk):
+    ensureLoggerReady()
     # AIW From API "Perform image matching for the chunk frame."
     # - First step of the Metashape GUI "Workflow" process "Align Photos",
     #   which generates the Sparse Cloud/Tie Points.
@@ -79,6 +86,7 @@ def arcAlign(chunk):
 # AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for
 # general use.
 def genDenseCloud(chunk):
+    ensureLoggerReady()
     # AIW From API "Generate depth maps for the chunk."
     # - First step of the Metashape GUI "Workflow" process called
     #   "Dense Cloud".
@@ -99,6 +107,7 @@ def genDenseCloud(chunk):
 # AIW Automates Metashape GUI "Workflow->Dense Cloud" with settings for
 # archival use.
 def arcDenseCloud(chunk):
+    ensureLoggerReady()
     # AIW From API "Generate depth maps for the chunk."
     # - First step of the Metashape GUI "Workflow" process called
     #   "Dense Cloud".
@@ -120,6 +129,7 @@ def arcDenseCloud(chunk):
 # AIW Automates Metashape GUI "Workflow" process "Build Mesh" and
 # "Build Texture" with settings for quick results.
 def quickModel(chunk):
+    ensureLoggerReady()
     # AIW From API "Generate model for the chunk frame." Builds mesh to be
     # used in the last steps.
     logger.info("Quickly generating textured 3D model")
@@ -130,7 +140,7 @@ def quickModel(chunk):
                      vertex_colors=True)
 
     # AIW From API "Generate uv mapping for the model."
-    chunk.buildUV(adaptive_resolution=True)
+    chunk.buildUV()
 
     # AIW From API "Generate texture for the chunk."
     # - Generates a basic texture for the 3D model.
@@ -141,6 +151,7 @@ def quickModel(chunk):
 # AIW Automates Metashape GUI "Workflow" process "Build Mesh" and
 # "Build Texture" with settings for general use.
 def genModel(chunk):
+    ensureLoggerReady()
     # AIW From API "Generate model for the chunk frame." Builds mesh to be
     # used in the last steps.
     logger.info("Building general quality textured 3D model")
@@ -162,6 +173,7 @@ def genModel(chunk):
 # AIW Automates Metashape GUI "Workflow" process "Build Mesh" and
 # "Build Texture" with settings for archival use.
 def arcModel(chunk):
+    ensureLoggerReady()
     # AIW From API "Generate model for the chunk frame." Builds accurate mesh
     # without generating extra geometry to be used in the last steps.
     logger.info("Building archival quality textured 3D model")
@@ -184,6 +196,7 @@ def arcModel(chunk):
 """Workflow Options"""
 # AIW Quick photogrammetry processing.
 def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
+    ensureLoggerReady()
     logger.info("Starting quick processing")
 
     # SFB Creating an instance will initialize the doc, the logger
@@ -215,6 +228,7 @@ def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
 
 # AIW Refinement of quickly processed photogrammetry data.
 def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
+    ensureLoggerReady()
     logger.info("Starting refinement.")
 
     # SFB Creating an instance will initialize the doc, the logger
@@ -232,6 +246,7 @@ def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
 
 # AIW The beginning steps for any custom full processing workflow.
 def metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS):
+    ensureLoggerReady()
     logger.info("Starting custom processing")
 
     # SFB Creating an instance will initialize the doc, the logger

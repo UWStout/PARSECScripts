@@ -1,7 +1,11 @@
 """Reworking of MetaUtils as a Class"""
 
 import Metashape
+from CustomProgress import PBar
 import os
+import math
+
+from ProjectPrefs import ProjectPrefs
 
 import Logger
 logger = None
@@ -16,7 +20,7 @@ class MetaUtils:
     """ Minimum compatible version of MetaShape """
     COMPATIBLE_VERSION = "2.2"
 
-    # SFB Common image file extensions
+    # Common image file extensions
     IMAGE_FILE_EXTENSION_LIST = ('.jpg', '.jpeg', '.png', '.tif', '.tiff')
 
     """ Construct a new MetaUtils object with the given Metashape Document """
@@ -71,7 +75,7 @@ class MetaUtils:
         else:
             logger.info("Metashape version: " + actualVersion + " OK")
 
-    # AIW Enables GPU processing in Metashape.
+    # Enables GPU processing in Metashape.
     @staticmethod
     def USE_GPU():
         MetaUtils.ensureLoggerReady()
@@ -80,17 +84,17 @@ class MetaUtils:
         gpuList = Metashape.app.enumGPUDevices()
         gpuCount = len(gpuList)
 
-        # SFB Enable all GPUs
+        # Enable all GPUs
         if gpuCount > 0:
             logger.info("Enabling %d GPUs" % (gpuCount))
-            Metashape.app.gpu_mask = 2**gpuCount - 1
+            Metashape.app.gpu_mask = 2**gpuCount - 2
             Metashape.app.cpu_enable = False
 
-    # SFB Import images and create a new doc
+    # Import images and create a new doc
     def initDoc(self):
         MetaUtils.ensureLoggerReady()
 
-        # SFB Get reference to the currently active DOM
+        # Get reference to the currently active DOM
         self.doc = Metashape.Document()
 
         # Attempts to open an existing project.
@@ -98,7 +102,7 @@ class MetaUtils:
         # - This must be done immediately after getting reference to\
         #   active DOM.
         # - .psx format will not save correctly otherwise.
-        doc_path = os.path.join(self.imagePath, self.projectName + ".psx")
+        doc_path = "./" + self.projectName + ".psx"
         try:
             self.doc.open(doc_path, read_only=False, ignore_lock=True)
             logger.info("Found existing PSX document.")
@@ -110,66 +114,82 @@ class MetaUtils:
             self.doc.chunk = self.doc.addChunk()
             self.doc.save(doc_path)
 
-    # AIW Automates correction processes for the chunk.
+    # Automates correction processes for the chunk.
     def chunkCorrect(self):
         MetaUtils.ensureLoggerReady()
 
-        # SFB Changes the dimensions of the chunk's reconstruction volume.
+        # Changes the dimensions of the chunk's reconstruction volume.
         logger.info("Correcting chunk")
-        NEW_REGION = self.chunk.region
+        NEW_REGION = self.chunk.region.copy()
         NEW_REGION.size = NEW_REGION.size * 2.0
         self.chunk.region = NEW_REGION
         logger.info("Done Correcting Chunk")
 
-    # AIW Creates an image list and adds them to the current chunk.
+    # Creates an image list and adds them to the current chunk.
     def loadImages(self):
         MetaUtils.ensureLoggerReady()
 
-        # SFB Build the list of image filenames
+        # Build the list of image filenames
         images = []
 
         logger.info("Loading Images")
 
-        # SFB Loop over all files in image path and add if an image type
+        # Loop over all files in image path and add if an image type
         for filename in os.listdir(self.imagePath):
             if filename.lower().endswith(MetaUtils.IMAGE_FILE_EXTENSION_LIST):
                 images.append(os.path.join(self.imagePath, filename))
 
-        # AIW From API "Add a list of photos to the chunk."
-        self.chunk.addPhotos(images)
-        logger.info("Done Loading Images")
-        logger.debug(images)
+        # From API "Add a list of photos to the chunk."
+        elapsed = 0
+        with PBar("Loading Images      ") as pbar:
+            self.chunk.addPhotos(images, progress=(lambda x: pbar.update(x)))
+            pbar.finish()
+            elapsed = pbar.getTime()
 
-    # AIW Automates masking.
+        logger.info("Done Loading Images")
+        return elapsed
+
+    # Automates masking.
     def autoMask(self, PATH_TO_MASKS):
         MetaUtils.ensureLoggerReady()
 
-        # SFB Ensure there are images to mask first
+        # Ensure there are images to mask first
         if len(self.chunk.cameras) <= 0:
             raise Exception("Cannot mask before adding images")
 
         logger.info("Importing Backgrounds for Masking")
 
-        # AIW From API "Import masks for multiple cameras."
+        # From API "Import masks for multiple cameras."
         # - Import background images for masking out the background.
         # - Camera must be referenced for this step to work.
-        self.chunk.importMasks(path=PATH_TO_MASKS,
-                               source=Metashape.MaskSourceBackground,
-                               operation=Metashape.MaskOperationReplacement,
-                               tolerance=10)
-        logger.info("Done Masking")
+        elapsed = 0
+        with PBar("Applying Masks      ") as pbar:
+            self.chunk.importMasks(path=PATH_TO_MASKS,
+                                source=Metashape.MaskSourceBackground,
+                                operation=Metashape.MaskOperationReplacement,
+                                tolerance=10, progress=(lambda x: pbar.update(x)))
+            pbar.finish()
+            elapsed = pbar.getTime()
 
-    # AIW Places markers on coded targets in images.
+        logger.info("Done Masking")
+        return elapsed
+
+    # Places markers on coded targets in images.
     def detectMarkers(self):
         MetaUtils.ensureLoggerReady()
 
         logger.info("Detecting markers")
-        self.chunk.detectMarkers(
-            tolerance=50, filter_mask=False, inverted=False,
-            noparity=False, maximum_residual=5)
-        logger.info("Done Detecting Markers")
+        elapsed = 0
+        with PBar("Detecting Markers   ") as pbar:
+            self.chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False,
+                noparity=False, maximum_residual=5, progress=(lambda x: pbar.update(x)))
+            pbar.finish()
+            elapsed = pbar.getTime()
 
-    # AIW Displays marker info.
+        logger.info("Done Detecting Markers")
+        return elapsed
+
+    # Displays marker info.
     def outputMarkers(self):
         MetaUtils.ensureLoggerReady()
 

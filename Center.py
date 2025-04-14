@@ -55,7 +55,7 @@ def findCenter(chunk):
     n.normalize()
 
     # SFB Change of basis matrix
-    basis = np.array([
+    Metashape.app.document.chunk.transform.rotation = np.array([
         [u.x, u.y, u.z],
         [v.x, v.y, v.z],
         [n.x, n.y, n.z],

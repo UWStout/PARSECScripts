@@ -2,7 +2,7 @@ import progressbar
 
 class PBar:
     def __init__(self, label, maxValue=100, minValue = 0, width=120):
-        widgets = [label, ' ', progressbar.Percentage(), ' ', progressbar.Bar(), ' ',
+        widgets = [label.ljust(22), ' ', progressbar.Percentage(), ' ', progressbar.Bar(), ' ',
             progressbar.Timer(), ' ', progressbar.ETA(format_finished='              ')]
 
         self.minValue = minValue

@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "C:/Users/sethb/OneDrive - University of Wisconsin-Stout/AnnaScans/April1/Outfit 2_002"
+		}
+	],
+	"settings": {
+        "logViewer.watch": [
+            {
+                "title": "Metashape Log",
+                "pattern": "C:\\Users\\sethb\\OneDrive - University of Wisconsin-Stout\\AnnaScans\\April1\\Outfit 2_002\\*.txt"
+            }
+        ]
+	}
+}

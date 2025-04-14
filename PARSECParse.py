@@ -20,108 +20,93 @@ PATH_TO_MASKS = None
 
 # Main parser
 parser = argparse.ArgumentParser(
-    prog='PARSECParse', description='Command line UI for PARSEC photogrammetry processes.')
+    prog='PARSECParse.py',
+    description='Command line UI for PARSEC photogrammetry processes.'
+)
 
-# Parser group for project options
-project_parser = parser.add_argument_group('File Info', 'Options for specifying filepath configuration.')
-project_parser.add_argument('-i', '--images', action='store',
-                            help='Path to the folder containing subject images.')
-project_parser.add_argument('-p', '--project', action='store',
-                            help='Project name applied as a prefix to log and MetaShape file names.')
-project_parser.add_argument('-m', '--masks', action='store',
-                            help='Path to the images for background subtraction with filename pattern.')
+# Options for the main program
+parser.add_argument('-i', '--images', action='store', help='Path to the folder containing subject images.')
+parser.add_argument('-m', '--masks', action='store', help='Path to the images for background subtraction with filename pattern.')
+parser.add_argument('-p', '--project', action='store', help='Project name applied as a prefix to log and MetaShape file names.')
+parser.add_argument('-l', '--load', action='store', help='Loads paths from the specified config file (previously created).', metavar="PROJECT")
+subparsers = parser.add_subparsers(title='Workflow', dest='workflow', description='Select a workflow to run.', metavar='WORKFLOW', required=True)
 
-# Allow loading of previously created configuration file
-projectConfig_parser = parser.add_argument_group('Load a previous configuration', 'Specify whether to load the path data from a config file.')
-projectConfig_parser.add_argument('-l', '--load', action='store',
-                                  help='Loads image, project, and mask paths from the specified config file (previously created).')
+# Fixed workflow subcommands
+quick_command = subparsers.add_parser('quick', help='Quick photogrammetry processing.')
+quick_command.add_argument('-r', '--refine', action='store_true', help='Refine prior data instead of overwriting.')
 
-# Mutually exclusive group for workflows.
-# - Only one of the following is allowed.
-workflow_group = parser.add_argument_group('Main Workflow Options', 'Specify what work to do on this project.')
-workflow_parser = workflow_group.add_mutually_exclusive_group(required=True)
-workflow_parser.add_argument('-q', '--quick', action='store_true',
-                             help='Quick photogrammetry processing.')
-workflow_parser.add_argument('-r', '--refine', action='store_true',
-                             help='Refinement of quickly processed photogrammetry data.')
-workflow_parser.add_argument('-g', '--general', action='store_true',
-                             help='General/normal quality processing.')
-workflow_parser.add_argument('-a', '--archival', action='store_true',
-                             help='Archival quality processing.')
-workflow_parser.add_argument('-c', '--custom', action='store_true',
-                             help='Run a custom workflow (use with custom workflow options).')
+general_command = subparsers.add_parser('general', help='General/normal quality processing.')
+general_command.add_argument('-r', '--refine', action='store_true', help='Refine prior data instead of overwriting.')
 
-# Parser group for custom workflow options.
-project_parser = parser.add_argument_group('Custom Workflow Options', 'Provide details for a custom workflow.')
-project_parser.add_argument('-qa', '--quickAlign', action='store_true',
-                            help='Preforms quick quality image matching.')
-project_parser.add_argument('-ga', '--genAlign', action='store_true',
-                            help='Preforms general quality image matching.')
-project_parser.add_argument('-aa', '--arcAlign', action='store_true',
-                            help='Preforms archival quality image matching.')
-project_parser.add_argument('-gd', '--genDense', action='store_true',
-                            help='Creates general quality dense cloud. Requires image matching to have been run.')
-project_parser.add_argument('-ad', '--arcDense', action='store_true',
-                            help='Creates archival quality dense cloud. Requires image matching to have been run.')
-project_parser.add_argument('-qm', '--quickMod', action='store_true',
-                            help='Creates a low-quality model. Requires image matching to have been run.')
-project_parser.add_argument('-gm', '--genMod', action='store_true',
-                            help='Creates a general-quality model. Requires general quality or better image matching & '
-                            'dense cloud creation to have been run.')
-project_parser.add_argument('-am', '--arcMod', action='store_true',
-                            help='Creates an archival-quality model. Requires general quality or better image matching '
-                            '& dense cloud creation to have been run.')
+archival_command = subparsers.add_parser('archival', help='Archival quality processing.')
+archival_command.add_argument('-r', '--refine', action='store_true', help='Refine prior data instead of overwriting.')
 
-# TODO: Parser group for utilities.
-# project_parser = parser.add_argument_group('Utilities')
+# Custom workflow subcommand
+custom_command = subparsers.add_parser('custom', help='Run a custom workflow')
+custom_command.add_argument('-qa', '--quickAlign', action='store_true', help='Preforms quick quality image matching.')
+custom_command.add_argument('-ga', '--genAlign', action='store_true', help='Preforms general quality image matching.')
+custom_command.add_argument('-aa', '--arcAlign', action='store_true', help='Preforms archival quality image matching.')
+custom_command.add_argument('-gd', '--genDense', action='store_true', help='Creates general quality dense cloud. Requires image matching to have been run.')
+custom_command.add_argument('-ad', '--arcDense', action='store_true', help='Creates archival quality dense cloud. Requires image matching to have been run.')
+custom_command.add_argument('-qm', '--quickMod', action='store_true', help='Creates a low-quality model. Requires image matching to have been run.')
+custom_command.add_argument('-gm', '--genMod', action='store_true', help='Creates a general-quality model. Requires a dense cloud.')
+custom_command.add_argument('-am', '--arcMod', action='store_true', help='Creates an archival-quality model. Requires a dense cloud.')
+
+# Utility actions subcommand
+utility_command = subparsers.add_parser('utility', help='Utility actions to apply to an existing project.')
+utility_group = utility_command.add_mutually_exclusive_group()
+utility_group.add_argument('-cc', '--chunkClean', action='store_true', help='Levels, orients, and centers the chunk based on markers.')
+
+utility_group.add_argument('-rl', '--regionLarge', action='store_true', help='Sets region to include the entire cage.')
+utility_group.add_argument('-rm', '--regionMedium', action='store_true', help='Sets region to include most of the scanning volume.')
+utility_group.add_argument('-rs', '--regionSmall', action='store_true', help='Sets region to only include the subject (approximate).')
+
+utility_group.add_argument('-fa', '--filterAggressive', action='store_true', help='Aggressively filter the sparse cloud/tie points.')
+utility_group.add_argument('-fn', '--filterNormal', action='store_true', help='Normally filter the sparse cloud/tie points.')
+utility_group.add_argument('-fl', '--filterLight', action='store_true', help='Lightly filter the sparse cloud/tie points.')
+utility_group.add_argument('-oc', '--optimizeCameras', action='store_true', help='Optimize the camera fitting (best used after -fa, -fn, or -fl).')
 
 # Parse the command line arguments.
 args = parser.parse_args()
 
-# If custom workflow was specified, ensure at least one workflow step was also specified.
-if args.custom and (
-    not args.quickAlign and not args.genAlign and not args.arcAlign and
-    not args.genDense and not args.arcDense and
-    not args.quickMod and not args.genMod and not args.arcMod
-):
-    print("Please specify at least one custom workflow step when using the custom workflow option.")
-    sys.exit()
-
-# Changes global variables to parsed user input.
-if args.images:
-    PATH_TO_IMAGES = args.images
-
-if args.project:
-    PROJECT_NAME = args.project
-
-if args.masks:
-    PATH_TO_MASKS = args.masks
+# Ensure that load is not used with images, project, or masks.
+if args.load and (args.images or args.project or args.masks):
+    print("Cannot specify load with 'images', 'project', or 'masks'.")
+    sys.exit(-1)
 
 # If load was specified, read the project preferences from the specified file.
 if args.load:
-    paths = vars(args)
-    LOAD_PATH = paths.get('load') or paths.get('l')
-    PREFS_FILENAME = LOAD_PATH + '.ini'
+    # Initialize prefs filename
+    PREFS_FILENAME = args.load + '.ini'
+
+    # Try to read the project preferences from the specified file.
+    print('Reading configuration from ./' + PREFS_FILENAME)
     prefs = ProjectPrefs(PREFS_FILENAME)
     PATH_TO_IMAGES = prefs.getPref('PATH_TO_IMAGES')
     PROJECT_NAME = prefs.getPref('PROJECT_NAME')
     PATH_TO_MASKS = prefs.getPref('PATH_TO_MASKS')
 
-# Checks for required path parameters
-if PATH_TO_IMAGES is None or PROJECT_NAME is None:
-    print("Please specify a path for subject images and a project name or load a previous config.")
-    sys.exit()
+else:
+    # Initialize global paths
+    PATH_TO_IMAGES = args.images
+    PROJECT_NAME = args.project
+    PATH_TO_MASKS = args.masks
+    PREFS_FILENAME = PROJECT_NAME + '.ini'
 
-# Creates a new project based on parsed user input.
-if not args.load:
+    # Save project preferences to a file
     prefs = ProjectPrefs()
     prefs.setPref('PATH_TO_IMAGES', PATH_TO_IMAGES)
     prefs.setPref('PROJECT_NAME', PROJECT_NAME)
     if PATH_TO_MASKS is not None:
         prefs.setPref('PATH_TO_MASKS', PATH_TO_MASKS)
-    PREFS_FILENAME = PROJECT_NAME + '.ini'
-    prefs.saveConfig(PREFS_FILENAME, './')
+
     print('Saving configuration to ./' + PREFS_FILENAME)
+    prefs.saveConfig(PREFS_FILENAME, './')
+
+# Checks for required project name parameter
+if PROJECT_NAME is None:
+    print('Unable to continue without project name')
+    sys.exit()
 
 # Import and initialize the logging system
 # This also redirects all MetaScan output
@@ -133,65 +118,55 @@ logger = Logger.getLogger()
 MetaUtils.CHECK_VER(Metashape.app.version)
 MetaUtils.USE_GPU()
 
-# Checks for required project name parameter
-if PROJECT_NAME is None:
-    print('Unable to continue without project name')
-    sys.exit()
-
 # Runs metaQuick from MetaWork using the current project.ini info
-if args.quick:
-    MetaWork.metaQuick(PATH_TO_IMAGES, PROJECT_NAME,
-                       PATH_TO_MASKS, PREFS_FILENAME)
+match args.workflow:
+    # Standard Workflows
+    case 'quick':
+        MetaWork.metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+    case 'general':
+        MetaWork.metaGeneral(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+    case 'archival':
+        MetaWork.metaArchival(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
 
-# Runs metaGeneral from MetaWork using the current project.ini info
-if args.general:
-    MetaWork.metaGeneral(PATH_TO_IMAGES, PROJECT_NAME,
-                         PATH_TO_MASKS, PREFS_FILENAME)
+    # Do a custom workflow
+    case 'custom':
+        MetaWork.metaCustom(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME, args)
 
-# Runs metaArchival from MetaWork using the current project.ini info
-if args.archival:
-    MetaWork.metaArchival(PATH_TO_IMAGES, PROJECT_NAME,
-                          PATH_TO_MASKS, PREFS_FILENAME)
+    # Apply simple utility steps to existing project
+    case 'utility':
+        # Initialize the MetaUtils class
+        MU = MetaWork.metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+        MU.doc.save()
 
-# Runs metaRefine from MetaWork using the current project.ini info
-if args.refine:
-    MetaWork.metaRefine(PATH_TO_IMAGES, PROJECT_NAME)
+        # Apply any enabled utility steps
+        if args.chunkClean:
+            MU.chunkCorrect()
+            MU.doc.save()
 
-# Runs metaCustomStart from MetaWork using the current project.ini info
-MU = None
-if args.custom:
-    MU = MetaWork.metaCustomStart(
-        PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+        if args.regionLarge:
+            MU.setRegion(1.1)
+            MU.doc.save()
 
-# Custom workflow options to be run after metaCustomStart
-if args.quickAlign:
-    MetaWork.quickAlign(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
+        if args.regionMedium:
+            MU.setRegion(0.66)
+            MU.doc.save()
 
-if args.genAlign:
-    MetaWork.genAlign(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
+        if args.regionSmall:
+            MU.setRegion(0.33)
+            MU.doc.save()
 
-if args.arcAlign:
-    MetaWork.archAlign(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
+        if args.filterAggressive:
+            MU.filterTiePoints('aggressive')
+            MU.doc.save()
 
-if args.genDense:
-    MetaWork.genDenseCloud(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
+        if args.filterNormal:
+            MU.filterTiePoints('normal')
+            MU.doc.save()
 
-if args.arcDense:
-    MetaWork.archDenseCloud(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
+        if args.filterLight:
+            MU.filterTiePoints('light')
+            MU.doc.save()
 
-if args.quickMod:
-    MetaWork.quickModel(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
-
-if args.genMod:
-    MetaWork.genModel(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
-
-if args.arcMod:
-    MetaWork.archModel(MU.chunk, PREFS_FILENAME)
-    MU.doc.save()
+        if args.optimizeCameras:
+            MU.optimizeCameraFitting()
+            MU.doc.save()

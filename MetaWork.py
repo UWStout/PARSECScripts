@@ -1,5 +1,7 @@
 """A script containing various Metashape workflows."""
 
+from datetime import timedelta
+
 import Metashape
 from CustomProgress import PBar
 
@@ -30,10 +32,13 @@ def quickAlign(chunk, prefsFileName=None, refine=False):
     #   the time added is negligible.
     logger.info("Quickly aligning photos")
     elapsed1 = -1
-    with PBar("Matching Photos     ") as pbar:
-        chunk.matchPhotos(downscale=2, generic_preselection=True, filter_mask=True, reset_matches=(not refine),
-                        mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(4000),
-                        progress=(lambda x: pbar.update(x)))
+    with PBar("Matching Photos") as pbar:
+        chunk.matchPhotos(
+            downscale=8, generic_preselection=True, filter_mask=True,
+            reset_matches=(not refine), mask_tiepoints=False,
+            keypoint_limit=(40000), tiepoint_limit=(20000),
+            progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed1 = pbar.getTime()
 
@@ -41,12 +46,14 @@ def quickAlign(chunk, prefsFileName=None, refine=False):
     # - Second step of the Metashape GUI "Workflow" process "Align Photos",
     #   which generates the Sparse Cloud/Tie Points.
     elapsed2 = -1
-    with PBar("Aligning Cameras    ") as pbar:
-        chunk.alignCameras(progress=(lambda x: pbar.update(x)))
+    with PBar("Aligning Cameras") as pbar:
+        chunk.alignCameras(reset_alignment=(not refine), progress=(lambda x: pbar.update(x)))
         pbar.finish()
         elapsed2 = pbar.getTime()
 
-    logger.info("Done aligning photos")
+    # Print the timing
+    logger.info("Quick alignment complete: %s" %
+                str(timedelta(seconds=elapsed1 + elapsed2)))
 
     # Write the timing to the project preferences file
     if prefsFileName is not None:
@@ -70,10 +77,13 @@ def genAlign(chunk, prefsFileName=None, refine=False):
     #   the time added is negligible.
     logger.info("Aligning photos for general quality")
     elapsed1 = -1
-    with PBar("Matching Photos     ") as pbar:
-        chunk.matchPhotos(downscale=1, generic_preselection=True, filter_mask=True, reset_matches=(not refine),
-                      mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(20000),
-                      progress=(lambda x: pbar.update(x)))
+    with PBar("Matching Photos") as pbar:
+        chunk.matchPhotos(
+            downscale=2, generic_preselection=True, filter_mask=True,
+            reset_matches=(not refine), mask_tiepoints=False,
+            keypoint_limit=(40000), tiepoint_limit=(40000),
+            progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed1 = pbar.getTime()
 
@@ -81,12 +91,14 @@ def genAlign(chunk, prefsFileName=None, refine=False):
     # - Second step of the Metashape GUI "Workflow" process "Align Photos",
     #   which generates the Sparse Cloud/Tie Points.
     elapsed2 = -1
-    with PBar("Aligning Cameras    ") as pbar:
-        chunk.alignCameras(progress=(lambda x: pbar.update(x)))
+    with PBar("Aligning Cameras") as pbar:
+        chunk.alignCameras(reset_alignment=(not refine), progress=(lambda x: pbar.update(x)))
         pbar.finish()
         elapsed2 = pbar.getTime()
 
-    logger.info("Done aligning photos")
+    # Print the timing
+    logger.info("General alignment complete: %s" %
+                str(timedelta(seconds=elapsed1 + elapsed2)))
 
     # Save timing information to project preferences file
     if prefsFileName is not None:
@@ -111,10 +123,13 @@ def arcAlign(chunk, prefsFileName=None, refine=False):
     #   the time added is negligible.
     logger.info("Aligning photos for archival quality")
     elapsed1 = -1
-    with PBar("Matching Photos     ") as pbar:
-        chunk.matchPhotos(downscale=0, generic_preselection=True, filter_mask=True, reset_matches=(not refine),
-                      mask_tiepoints=False, keypoint_limit=(40000), tiepoint_limit=(40000),
-                      progress=(lambda x: pbar.update(x)))
+    with PBar("Matching Photos") as pbar:
+        chunk.matchPhotos(
+            downscale=0, generic_preselection=True, filter_mask=True,
+            reset_matches=(not refine), mask_tiepoints=False,
+            keypoint_limit=(40000), tiepoint_limit=(10000),
+            progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed1 = pbar.getTime()
 
@@ -122,12 +137,14 @@ def arcAlign(chunk, prefsFileName=None, refine=False):
     # - Second step of the Metashape GUI "Workflow" process "Align Photos",
     #   which generates the Sparse Cloud/Tie Points.
     elapsed2 = -1
-    with PBar("Aligning Cameras    ") as pbar:
-        chunk.alignCameras(progress=(lambda x: pbar.update(x)))
+    with PBar("Aligning Cameras") as pbar:
+        chunk.alignCameras(progress=(lambda x: pbar.update(x)), reset_alignment=True)
         pbar.finish()
         elapsed2 = pbar.getTime()
 
-    logger.info("Done aligning photos")
+    # Print the timing
+    logger.info("Archival alignment complete: %s" %
+                str(timedelta(seconds=elapsed1 + elapsed2)))
 
     # Save timing information to project preferences file
     if prefsFileName is not None:
@@ -141,28 +158,30 @@ def arcAlign(chunk, prefsFileName=None, refine=False):
 """Dense Cloud Options"""
 # Automates Metashape GUI "Workflow->Dense Cloud" with settings for
 # general use.
-def genDenseCloud(chunk, prefsFileName=None):
+def genDenseCloud(chunk, prefsFileName=None, refine=False):
     ensureLoggerReady()
+
     # From API "Generate depth maps for the chunk."
-    # - First step of the Metashape GUI "Workflow" process called
-    #   "Dense Cloud".
-    # - max_neighbors parameter may save time and help with shadows.
-    #   -1 is none.
+    # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
+    # - max_neighbors parameter may save time and help with shadows (-1 is none).
     elapsed1 = -1
     logger.info("Building general quality Dense Cloud")
-    with PBar("Building Depth Maps ") as pbar:
-        chunk.buildDepthMaps(downscale=2, filter_mode=Metashape.AggressiveFiltering,
-            max_neighbors=100, progress=(lambda x: pbar.update(x)))
+    with PBar("Building Depth Maps") as pbar:
+        chunk.buildDepthMaps(
+            downscale=4, filter_mode=Metashape.AggressiveFiltering,
+            max_neighbors=100, progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed1 = pbar.getTime()
 
     # From API "Generate dense cloud for the chunk."
-    # - Second step of the Metashape GUI "Workflow" process called
-    #   "Dense Cloud".
+    # - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
     elapsed2 = -1
     with PBar("Building Point Cloud") as pbar:
-        chunk.buildPointCloud(point_colors=False, keep_depth=True,
-            max_neighbors=100, progress=(lambda x: pbar.update(x)))
+        chunk.buildPointCloud(
+            point_colors=False, keep_depth=True,
+            max_neighbors=100, progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed2 = pbar.getTime()
 
@@ -179,28 +198,30 @@ def genDenseCloud(chunk, prefsFileName=None):
 
 # Automates Metashape GUI "Workflow->Dense Cloud" with settings for
 # archival use.
-def arcDenseCloud(chunk, prefsFileName=None):
+def arcDenseCloud(chunk, prefsFileName=None, refine=False):
     ensureLoggerReady()
+
     # From API "Generate depth maps for the chunk."
-    # - First step of the Metashape GUI "Workflow" process called
-    #   "Dense Cloud".
-    # - max_neighbors parameter may save time and help with shadows.d
-    #   -1 is none.
+    # - First step of the Metashape GUI "Workflow" process called "Dense Cloud".
+    # - max_neighbors parameter may save time and help with shadows (-1 is none).
     elapsed1 = -1
     logger.info("Building archival quality Dense Cloud")
-    with PBar("Building Depth Maps ") as pbar:
-        chunk.buildDepthMaps(downscale=1, filter_mode=Metashape.MildFiltering,
-            max_neighbors=100, progress=(lambda x: pbar.update(x)))
+    with PBar("Generating Depth Maps") as pbar:
+        chunk.buildDepthMaps(
+            downscale=1, filter_mode=Metashape.MildFiltering,
+            max_neighbors=100, progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed1 = pbar.getTime()
 
     # From API "Generate dense cloud for the chunk."
-    # - Second step of the Metashape GUI "Workflow" process called
-    # "Dense Cloud".
+    # - Second step of the Metashape GUI "Workflow" process called "Dense Cloud".
     elapsed2 = -1
-    with PBar("Building Point Cloud") as pbar:
-        chunk.buildPointCloud(point_colors=False, keep_depth=True,
-            max_neighbors=100, progress=(lambda x: pbar.update(x)))
+    with PBar("Generating Point Cloud") as pbar:
+        chunk.buildPointCloud(
+            point_colors=False, keep_depth=True,
+            max_neighbors=100, progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed2 = pbar.getTime()
 
@@ -218,39 +239,46 @@ def arcDenseCloud(chunk, prefsFileName=None):
 """Model Options"""
 # Automates Metashape GUI "Workflow" process "Build Mesh" and
 # "Build Texture" with settings for quick results.
-def quickModel(chunk, prefsFileName=None):
+def quickModel(chunk, prefsFileName=None, refine=False):
     ensureLoggerReady()
-    # From API "Generate model for the chunk frame." Builds mesh to be
-    # used in the last steps.
+
+    # From API "Generate model for the chunk frame."
+    # - Builds mesh to be used in the last steps.
     logger.info("Quickly generating textured 3D model")
     elapsed1 = -1
-    with PBar("Generating Model    ") as pbar:
-        chunk.buildModel(surface_type=Metashape.Arbitrary,
-                        interpolation=Metashape.EnabledInterpolation,
-                        face_count=Metashape.HighFaceCount,
-                        source_data=Metashape.TiePointsData,
-                        vertex_colors=True, progress=(lambda x: pbar.update(x)))
+    with PBar("Generating Model") as pbar:
+        chunk.buildModel(
+            surface_type=Metashape.Arbitrary, interpolation=Metashape.EnabledInterpolation,
+            face_count=Metashape.HighFaceCount, source_data=Metashape.TiePointsData,
+            vertex_colors=False, progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed1 = pbar.getTime()
 
     # From API "Generate uv mapping for the model."
     elapsed2 = -1
     with PBar("Generating UV Coords") as pbar:
-        chunk.buildUV(progress=(lambda x: pbar.update(x)))
+        chunk.buildUV(
+            mapping_mode=Metashape.GenericMapping,
+            page_count=1, texture_size=1024,
+            progress=(lambda x: pbar.update(x)))
         pbar.finish()
         elapsed2 = pbar.getTime()
 
     # From API "Generate texture for the chunk."
     # - Generates a basic texture for the 3D model.
     elapsed3 = -1
-    with PBar("Generating 1k Tex   ") as pbar:
-        chunk.buildTexture(blending_mode=Metashape.MosaicBlending,
-                        texture_size=(1024), fill_holes=False,
-                        progress=(lambda x: pbar.update(x)))
+    with PBar("Generating 1k Tex") as pbar:
+        chunk.buildTexture(
+            texture_type=Metashape.Model.DiffuseMap,
+            blending_mode=Metashape.MosaicBlending,
+            source_data=Metashape.ImagesData,
+            texture_size=1024, progress=(lambda x: pbar.update(x))
+        )
         pbar.finish()
         elapsed3 = pbar.getTime()
 
-    logger.info("Done generating model")
+    logger.info("Done building textured 3D model")
 
     # Save timing information to project preferences file
     if prefsFileName is not None:
@@ -264,13 +292,14 @@ def quickModel(chunk, prefsFileName=None):
 
 # Automates Metashape GUI "Workflow" process "Build Mesh" and
 # "Build Texture" with settings for general use.
-def genModel(chunk, prefsFileName=None):
+def genModel(chunk, prefsFileName=None, refine=False):
     ensureLoggerReady()
-    # From API "Generate model for the chunk frame." Builds mesh to be
-    # used in the last steps.
+
+    # From API "Generate model for the chunk frame."
+    # - Builds mesh to be used in the last steps.
     logger.info("Building general quality textured 3D model")
     elapsed1 = -1
-    with PBar("Generating Model    ") as pbar:
+    with PBar("Generating Model") as pbar:
         chunk.buildModel(surface_type=Metashape.Arbitrary,
                         interpolation=Metashape.EnabledInterpolation,
                         face_count=Metashape.HighFaceCount,
@@ -290,14 +319,14 @@ def genModel(chunk, prefsFileName=None):
     # From API "Generate texture for the chunk."
     # - Generates a 4k texture for the 3D model.
     elapsed3 = -1
-    with PBar("Generating 4k Tex   ") as pbar:
+    with PBar("Generating 4k Tex") as pbar:
         chunk.buildTexture(blending_mode=Metashape.MosaicBlending,
                            texture_size=(4096), fill_holes=False,
                            progress=(lambda x: pbar.update(x)))
         pbar.finish()
         elapsed3 = pbar.getTime()
 
-    logger.info("Done building model")
+    logger.info("Done building textured 3D model")
 
     # Save timing information to project preferences file
     if prefsFileName is not None:
@@ -310,13 +339,13 @@ def genModel(chunk, prefsFileName=None):
 
 # Automates Metashape GUI "Workflow" process "Build Mesh" and
 # "Build Texture" with settings for archival use.
-def arcModel(chunk, prefsFileName=None):
+def arcModel(chunk, prefsFileName=None, refine=False):
     ensureLoggerReady()
-    # From API "Generate model for the chunk frame." Builds accurate mesh
-    # without generating extra geometry to be used in the last steps.
+    # From API "Generate model for the chunk frame."
+    # - Builds accurate mesh to be used in the last steps.
     logger.info("Building archival quality textured 3D model")
     elapsed1 = -1
-    with PBar("Generating Model    ") as pbar:
+    with PBar("Generating Model") as pbar:
         chunk.buildModel(surface_type=Metashape.Arbitrary,
                          interpolation=Metashape.EnabledInterpolation,
                          face_count=Metashape.HighFaceCount,
@@ -336,14 +365,14 @@ def arcModel(chunk, prefsFileName=None):
     # From API "Generate texture for the chunk."
     # - Generates a 16k texture for the 3D model.
     elapsed3 = -1
-    with PBar("Generating 8k Tex   ") as pbar:
+    with PBar("Generating 8k Tex") as pbar:
         chunk.buildTexture(blending_mode=Metashape.MosaicBlending,
                            texture_size=(8192), fill_holes=False,
                            progress=(lambda x: pbar.update(x)))
         pbar.finish()
         elapsed3 = pbar.getTime()
 
-    logger.info("Done building model")
+    logger.info("Done building textured 3D model")
 
     # Save timing information to project preferences file
     if prefsFileName is not None:
@@ -356,13 +385,8 @@ def arcModel(chunk, prefsFileName=None):
 
 
 """Workflow Options"""
-# Quick photogrammetry processing.
-def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None):
-    ensureLoggerReady()
-    logger.info("Starting quick processing")
-
-    # Creating an instance will initialize the doc, the logger
-    # and the paths
+def metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None):
+    # Creating an instance will initialize the doc, the logger and the paths
     MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
 
     # Creates an image list and adds them to the current chunk.
@@ -375,18 +399,6 @@ def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=No
     maskElapsed = None
     if PATH_TO_MASKS is not None:
         maskElapsed = MU.autoMask(PATH_TO_MASKS)
-    MU.doc.save()
-
-    # Aligns photos.
-    quickAlign(MU.chunk, prefsFileName)
-    MU.doc.save()
-
-    # Corrects the chunk.
-    MU.chunkCorrect()
-
-    # Creates a quick model.
-    quickModel(MU.chunk, prefsFileName)
-    MU.doc.save()
 
     if prefsFileName is not None:
         prefs = ProjectPrefs(prefsFileName)
@@ -397,155 +409,143 @@ def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=No
         if maskElapsed is not None:
             prefs.setPref('INIT_APPLY_MASKS', maskElapsed)
         prefs.saveConfig()
+
+    # Return the initialized MetaUtils object
+    return MU
+
+# Quick photogrammetry processing.
+def metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None, refine=False):
+    ensureLoggerReady()
+    logger.info("Starting quick processing")
+
+    # Initialize the MetaUtils object and project
+    MU = metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, prefsFileName)
+    MU.doc.save()
+
+    # Aligns photos and corrects the chunk
+    quickAlign(MU.chunk, prefsFileName, refine)
+    MU.chunkCorrect()
+    MU.setRegion(0.33)
+    MU.filterTiePoints()
+    MU.optimizeCameras()
+    MU.doc.save()
+
+    # Creates a quick model.
+    quickModel(MU.chunk, prefsFileName, refine)
+    MU.doc.save()
 
     logger.info("Quick processing done")
 
 # General photogrammetry processing.
-def metaGeneral(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None):
+def metaGeneral(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None, refine=False):
     ensureLoggerReady()
     logger.info("Starting general quality processing")
 
-    # Creating an instance will initialize the doc, the logger
-    # and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
-
-    # Creates an image list and adds them to the current chunk.
-    loadElapsed = MU.loadImages()
-
-    # Places markers on coded targets in images.
-    markersElapsed = MU.detectMarkers()
-
-    # Creates masks.
-    maskElapsed = None
-    if PATH_TO_MASKS is not None:
-        maskElapsed = MU.autoMask(PATH_TO_MASKS)
-
-    # Aligns photos.
-    genAlign(MU.chunk, prefsFileName)
+    # Initialize the MetaUtils object and project
+    MU = metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, prefsFileName)
     MU.doc.save()
 
-    # Corrects the chunk.
+    # Aligns photos and corrects the chunk.
+    genAlign(MU.chunk, prefsFileName, refine)
     MU.chunkCorrect()
+    MU.setRegion(1.1)
+    MU.filterTiePoints()
+    MU.optimizeCameras()
+    MU.doc.save()
 
     # Generate the dense cloud.
-    genDenseCloud(MU.chunk, prefsFileName)
+    genDenseCloud(MU.chunk, prefsFileName, refine)
     MU.doc.save()
 
     # Creates a general model.
-    genModel(MU.chunk, prefsFileName)
+    MU.setRegion(0.5)
+    genModel(MU.chunk, prefsFileName, refine)
     MU.doc.save()
-
-    # Write the elapsed times to the project prefs file
-    if prefsFileName is not None:
-        prefs = ProjectPrefs(prefsFileName)
-        prefs.setPref('INIT', loadElapsed + markersElapsed +
-                      (0 if maskElapsed is None else maskElapsed))
-        prefs.setPref('INIT_IMAGE_LOAD', loadElapsed)
-        prefs.setPref('INIT_DETECT_MARKERS', markersElapsed)
-        if maskElapsed is not None:
-            prefs.setPref('INIT_APPLY_MASKS', maskElapsed)
-        prefs.saveConfig()
 
     logger.info("General quality processing done")
 
 # Archival photogrammetry processing.
-def metaArchival(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None):
+def metaArchival(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None, refine=False):
     ensureLoggerReady()
     logger.info("Starting archival quality processing")
 
-    # Creating an instance will initialize the doc, the logger
-    # and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
-
-    # Creates an image list and adds them to the current chunk.
-    loadElapsed = MU.loadImages()
-
-    # Places markers on coded targets in images.
-    markersElapsed = MU.detectMarkers()
-
-    # Creates masks.
-    maskElapsed = None
-    if PATH_TO_MASKS is not None:
-        maskElapsed = MU.autoMask(PATH_TO_MASKS)
+    # Initialize the MetaUtils object and project
+    MU = metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, prefsFileName)
     MU.doc.save()
 
-    # Aligns photos.
-    arcAlign(MU.chunk, prefsFileName)
-    MU.doc.save()
-
-    # Corrects the chunk.
+    # Aligns photos and corrects the chunk.
+    arcAlign(MU.chunk, prefsFileName, refine)
     MU.chunkCorrect()
+    MU.setRegion(1.1)
+    MU.filterTiePoints()
+    MU.optimizeCameras()
+    MU.doc.save()
 
     # Creates a dense cloud for archival use.
-    arcDenseCloud(MU.chunk, prefsFileName)
+    arcDenseCloud(MU.chunk, prefsFileName, refine)
     MU.doc.save()
 
     # Creates an archival quality model.
-    arcModel(MU.chunk, prefsFileName)
+    MU.setRegion(0.66)
+    arcModel(MU.chunk, prefsFileName, refine)
     MU.doc.save()
-
-    # Write the elapsed times to the project prefs file
-    if prefsFileName is not None:
-        prefs = ProjectPrefs(prefsFileName)
-        prefs.setPref('INIT', loadElapsed + markersElapsed +
-                      (0 if maskElapsed is None else maskElapsed))
-        prefs.setPref('INIT_IMAGE_LOAD', loadElapsed)
-        prefs.setPref('INIT_DETECT_MARKERS', markersElapsed)
-        if maskElapsed is not None:
-            prefs.setPref('INIT_APPLY_MASKS', maskElapsed)
-        prefs.saveConfig()
 
     logger.info("Archival processing done")
 
 
-# Refinement of quickly processed photogrammetry data.
-def metaRefine(PATH_TO_IMAGES, PROJECT_NAME):
+def metaCustom(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None, args={}):
     ensureLoggerReady()
-    logger.info("Starting refinement.")
+    logger.info("Starting custom workflow")
 
-    # Creating an instance will initialize the doc, the logger
-    # and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
-
-    # Creates a dense cloud for general use.
-    genDenseCloud(MU.chunk)
-
-    # Creates a model for general use.
-    genModel(MU.chunk)
-
-    MU.doc.save()
-    logger.info("Refinement done")
-
-# The beginning steps for any custom full processing workflow.
-def metaCustomStart(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS=None, prefsFileName=None):
-    ensureLoggerReady()
-    logger.info("Starting custom processing")
-
-    # Creating an instance will initialize the doc, the logger,
-    # and the paths
-    MU = MetaUtils(None, PATH_TO_IMAGES, PROJECT_NAME)
-
-    # Creates an image list and adds them to the current chunk.
-    loadElapsed = MU.loadImages()
-
-    # Places markers on coded targets in images.
-    markersElapsed = MU.detectMarkers()
-
-    # Creates masks.
-    maskElapsed = None
-    if PATH_TO_MASKS is not None:
-        maskElapsed = MU.autoMask(PATH_TO_MASKS)
+    # Initialize the MetaUtils object and project
+    MU = metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, prefsFileName)
     MU.doc.save()
 
-    # Write the elapsed times to the project prefs file
-    if prefsFileName is not None:
-        prefs = ProjectPrefs(prefsFileName)
-        prefs.setPref('INIT', loadElapsed + markersElapsed +
-                      (0 if maskElapsed is None else maskElapsed))
-        prefs.setPref('INIT_IMAGE_LOAD', loadElapsed)
-        prefs.setPref('INIT_DETECT_MARKERS', markersElapsed)
-        if maskElapsed is not None:
-            prefs.setPref('INIT_APPLY_MASKS', maskElapsed)
-        prefs.saveConfig()
+    if args.quickAlign:
+        quickAlign(MU.chunk, prefsFileName)
+        MU.doc.save()
+        MU.chunkCorrect()
+        MU.setRegion(0.33)
+        MU.filterTiePoints()
+        MU.optimizeCameras()
+        MU.doc.save()
 
-    return MU
+    if args.genAlign:
+        genAlign(MU.chunk, prefsFileName)
+        MU.doc.save()
+        MU.chunkCorrect()
+        MU.setRegion(0.5)
+        MU.filterTiePoints()
+        MU.optimizeCameras()
+        MU.doc.save()
+
+    if args.arcAlign:
+        arcAlign(MU.chunk, prefsFileName)
+        MU.doc.save()
+        MU.chunkCorrect()
+        MU.setRegion(0.66)
+        MU.filterTiePoints()
+        MU.optimizeCameras()
+        MU.doc.save()
+
+    if args.genDense:
+        genDenseCloud(MU.chunk, prefsFileName)
+        MU.doc.save()
+
+    if args.arcDense:
+        arcDenseCloud(MU.chunk, prefsFileName)
+        MU.doc.save()
+
+    if args.quickMod:
+        quickModel(MU.chunk, prefsFileName)
+        MU.doc.save()
+
+    if args.genMod:
+        genModel(MU.chunk, prefsFileName)
+        MU.doc.save()
+
+    if args.arcMod:
+        arcModel(MU.chunk, prefsFileName)
+        MU.doc.save()
+
+    logger.info("Custom workflow done")

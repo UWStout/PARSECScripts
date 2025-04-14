@@ -1,9 +1,10 @@
 """Reworking of MetaUtils as a Class"""
 
+import os
+import numpy as np
+
 import Metashape
 from CustomProgress import PBar
-import os
-import math
 
 from ProjectPrefs import ProjectPrefs
 
@@ -90,6 +91,29 @@ class MetaUtils:
             Metashape.app.gpu_mask = 2**gpuCount - 2
             Metashape.app.cpu_enable = False
 
+    @staticmethod
+    def fitPlaneToMarkers(markers):
+        # Pack markers into matrix subtracting centroid
+        points = np.array([
+            [marker.position.x, marker.position.y, marker.position.z] for marker in markers
+        ])
+
+        # Calculate the centroid of the points
+        centroid = np.mean(points, axis=0)
+
+        # Calculate the covariance matrix
+        centered_points = points - centroid
+        covariance_matrix = np.cov(centered_points.T)
+
+        # Calculate the eigenvectors and eigenvalues
+        eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
+
+        # The best-fit normal vector is the eigenvector corresponding to the smallest eigenvalue
+        normal = eigenvectors[:, np.argmin(eigenvalues)]
+
+        # Return normal and centroid
+        return Metashape.Vector(normal), Metashape.Vector(centroid)
+
     # Import images and create a new doc
     def initDoc(self):
         MetaUtils.ensureLoggerReady()
@@ -99,8 +123,7 @@ class MetaUtils:
 
         # Attempts to open an existing project.
         # - A new project is created if an existing project is not available.
-        # - This must be done immediately after getting reference to\
-        #   active DOM.
+        # - This must be done immediately after getting reference to active DOM.
         # - .psx format will not save correctly otherwise.
         doc_path = "./" + self.projectName + ".psx"
         try:
@@ -114,20 +137,177 @@ class MetaUtils:
             self.doc.chunk = self.doc.addChunk()
             self.doc.save(doc_path)
 
+    # Helper function to retrieve markes by label
+    def findMarkers(self, labels):
+        MetaUtils.ensureLoggerReady()
+
+        markers = []
+        for label in labels:
+            foundMarker = [marker for marker in self.chunk.markers if marker.label == label]
+            if len(foundMarker) == 1: markers.append(foundMarker[0])
+
+        # Logs a warning if not all markers were found.
+        if len(markers) != len(labels):
+            logger.warn("Markers not found:")
+            foundLabels = [marker.label for marker in markers]
+            for label in labels:
+                if label not in foundLabels:
+                    logger.warn("\t" + label)
+
+        return markers
+
     # Automates correction processes for the chunk.
     def chunkCorrect(self):
         MetaUtils.ensureLoggerReady()
 
         # Changes the dimensions of the chunk's reconstruction volume.
-        logger.info("Correcting chunk")
-        NEW_REGION = self.chunk.region.copy()
-        NEW_REGION.size = NEW_REGION.size * 2.0
-        self.chunk.region = NEW_REGION
-        logger.info("Done Correcting Chunk")
+        logger.info("Leveling and orienting chunk")
+
+        # Compute a basis from markers in the scene
+        up, view, c = self.computeBasisFromCoplanerMarkers(
+            ['target 15', 'target 11', 'target 13', 'target 9']
+        )
+
+        # Use markers to find a known "upward" vector
+        upMarkers = self.findMarkers(['target 15', 'target 20'])
+        upward = (upMarkers[1].position - upMarkers[0].position).normalized()
+
+        # If up vector is opposite to the upward vector, flip it
+        if up * upward < 0: up = -up
+
+        # Compute rest of basis and apply to chunk
+        t = Metashape.Vector.cross(view, up).normalized()
+        v = Metashape.Vector.cross(up, t).normalized()
+        self.applyBasis(t, up, v, c)
+
+        # Apply a final fudge rotation to correct for non-planer markers
+        fudgeMatrix = Metashape.Matrix([
+            [0.9993, -0.0373, -0.0025],
+            [0.0371,  0.9981, -0.0482],
+            [0.0043,  0.0481,  0.9988]
+        ])
+        self.chunk.transform.rotation = fudgeMatrix * self.chunk.transform.rotation
+
+    def setRegion(self, scaler):
+        MetaUtils.ensureLoggerReady()
+
+        # Changes the dimensions of the chunk's reconstruction volume.
+        logger.info("Limiting and orienting region")
+
+        # Find midpoint of volume
+        markers = self.findMarkers(['target 15', 'target 11', 'target 13', 'target 9'])
+        points = np.array([[marker.position.x, marker.position.y, marker.position.z] for marker in markers])
+        centroid = Metashape.Vector(np.mean(points, axis=0))
+
+        # Compute distance between the width markers
+        widthMarkers = self.findMarkers(['target 11', 'target 15'])
+        cageWidth = (widthMarkers[0].position - widthMarkers[1].position).norm()
+
+        # Align region with chunk (presumes chunk has already been cleaned)
+        self.chunk.region.rot = self.chunk.transform.rotation.t()
+        yAxis = Metashape.Matrix.Rotation(self.chunk.region.rot).mulv(Metashape.Vector((0, 1, 0)))
+        if scaler > 0.75:
+            self.chunk.region.center = centroid
+        else:
+            # Slightly lower than centroid
+            adjust = cageWidth * 0.05
+            self.chunk.region.center = Metashape.Vector((
+                centroid.x - yAxis.x * adjust,
+                centroid.y - yAxis.y * adjust,
+                centroid.z - yAxis.z * adjust
+            ))
+
+        # Set size according to parameter
+        if scaler > 0.75:
+            self.chunk.region.size = Metashape.Vector((
+                cageWidth * scaler, cageWidth * scaler, cageWidth * scaler
+            ))
+        else:
+            # Don't let height be below 75%
+            self.chunk.region.size = Metashape.Vector((
+                cageWidth * scaler, cageWidth * 0.75, cageWidth * scaler
+            ))
+
+    def computeBasisFromCoplanerMarkers(self, markerLabels):
+        MetaUtils.ensureLoggerReady()
+
+        # Find the relevant targets
+        targets = self.findMarkers(markerLabels)
+
+        # Check that all targets were found
+        if len(targets) < len(markerLabels):
+            return None, None, None
+
+        # Compute best-fit plane
+        up, centroid = MetaUtils.fitPlaneToMarkers(targets)
+
+        # Compute view direction from first two targets
+        v = (targets[0].position - targets[1].position).normalized()
+
+        # Return normal, view direction, and center of mass
+        return up, v, centroid
+
+    def applyBasis(self, t, u, v, c):
+        self.chunk.transform.matrix = Metashape.Matrix([
+            [ t.x,  t.y,  t.z, -c.x],
+            [ u.x,  u.y,  u.z, -c.y],
+            [-v.x, -v.y, -v.z, -c.z],
+            [0, 0, 0, 1]
+        ])
+
+    def filterTiePoints(self):
+        # Compute distance between the width markers
+        widthMarkers = self.findMarkers(['target 11', 'target 15'])
+        cageWidth = (widthMarkers[0].position - widthMarkers[1].position).norm()
+
+        # Find midpoint of volume
+        markers = self.findMarkers(['target 15', 'target 11', 'target 13', 'target 9'])
+        points = np.array([[marker.position.x, marker.position.y, marker.position.z] for marker in markers])
+        centroid = Metashape.Vector(np.mean(points, axis=0))
+
+        # General size to limit
+        horizSize = 2.138 * cageWidth
+        vertSize = 1.145 * cageWidth
+
+        # Build bounding box region
+        BBRegion = self.chunk.region.copy()
+        BBRegion.size = Metashape.Vector([horizSize, vertSize, horizSize])
+        BBRegion.center = centroid
+
+        # Select tie points outside bounding box
+        for tiePoint in self.chunk.tie_points.points:
+            MetaUtils.checkPoint(tiePoint, BBRegion)
+
+        # Remove selected tie points
+        self.chunk.tie_points.removeSelectedPoints()
+
+    def checkPoint(point, region):
+        R = region.rot		# Bounding box rotation matrix
+        C = region.center	# Bounding box center vector
+        size = region.size
+
+        v = point.coord
+        v.size = 3
+        v_c = v - C
+        v_r = R.t() * v_c
+
+        if abs(v_r.x) > abs(size.x / 2.):
+            point.selected = True
+        elif abs(v_r.y) > abs(size.y / 2.):
+            point.selected = True
+        elif abs(v_r.z) > abs(size.z / 2.):
+            point.selected = True
+        else:
+            point.selected = False
 
     # Creates an image list and adds them to the current chunk.
     def loadImages(self):
         MetaUtils.ensureLoggerReady()
+
+        # If the chunk already has images, skip loading
+        if len(self.chunk.cameras) > 0:
+            logger.info("Skipping image loading (chunk already contains images)")
+            return 0
 
         # Build the list of image filenames
         images = []
@@ -141,7 +321,7 @@ class MetaUtils:
 
         # From API "Add a list of photos to the chunk."
         elapsed = 0
-        with PBar("Loading Images      ") as pbar:
+        with PBar("Loading Images") as pbar:
             self.chunk.addPhotos(images, progress=(lambda x: pbar.update(x)))
             pbar.finish()
             elapsed = pbar.getTime()
@@ -163,7 +343,7 @@ class MetaUtils:
         # - Import background images for masking out the background.
         # - Camera must be referenced for this step to work.
         elapsed = 0
-        with PBar("Applying Masks      ") as pbar:
+        with PBar("Applying Masks") as pbar:
             self.chunk.importMasks(path=PATH_TO_MASKS,
                                 source=Metashape.MaskSourceBackground,
                                 operation=Metashape.MaskOperationReplacement,
@@ -178,15 +358,34 @@ class MetaUtils:
     def detectMarkers(self):
         MetaUtils.ensureLoggerReady()
 
+        # If the chunk already has markers, don't redetect
+        if len(self.chunk.markers) > 0:
+            logger.info("Skipping marker detection (chunk already has markers)")
+            return 0
+
         logger.info("Detecting markers")
         elapsed = 0
-        with PBar("Detecting Markers   ") as pbar:
+        with PBar("Detecting Markers") as pbar:
             self.chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False,
                 noparity=False, maximum_residual=5, progress=(lambda x: pbar.update(x)))
             pbar.finish()
             elapsed = pbar.getTime()
 
         logger.info("Done Detecting Markers")
+        return elapsed
+
+    # Places markers on coded targets in images.
+    def optimizeCameras(self):
+        MetaUtils.ensureLoggerReady()
+
+        logger.info("Optimizing Camera Fitting")
+        elapsed = 0
+        with PBar("Optimizing Cameras") as pbar:
+            self.chunk.optimizeCameras(fit_b1=True, fit_b2=True, progress=(lambda x: pbar.update(x)))
+            pbar.finish()
+            elapsed = pbar.getTime()
+
+        logger.info("Done Optimizing Cameras")
         return elapsed
 
     # Displays marker info.

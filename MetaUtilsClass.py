@@ -182,9 +182,9 @@ class MetaUtils:
 
         # Apply a final fudge rotation to correct for non-planer markers
         fudgeMatrix = Metashape.Matrix([
-            [0.9993, -0.0373, -0.0025],
-            [0.0371,  0.9981, -0.0482],
-            [0.0043,  0.0481,  0.9988]
+            [ 0.99895, 0.04575, -0.00006],
+            [-0.04570, 0.99791, -0.04557],
+            [-0.00202, 0.04552,  0.99896]
         ])
         self.chunk.transform.rotation = fudgeMatrix * self.chunk.transform.rotation
 

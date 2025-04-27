@@ -28,7 +28,22 @@ class ProjectPrefs:
         'BUILD_MODEL': {'section': 'TIMING'},
         'BUILD_MODEL_MESH': {'section': 'TIMING'},
         'BUILD_MODEL_UV': {'section': 'TIMING'},
-        'BUILD_MODEL_TEXTURE': {'section': 'TIMING'}
+        'BUILD_MODEL_TEXTURE': {'section': 'TIMING'},
+
+        'BUILD_MODEL_TIE_POINTS': {'section': 'TIMING'},
+        'BUILD_MODEL_MESH_TIE_POINTS': {'section': 'TIMING'},
+        'BUILD_MODEL_UV_TIE_POINTS': {'section': 'TIMING'},
+        'BUILD_MODEL_TEXTURE_TIE_POINTS': {'section': 'TIMING'},
+
+        'BUILD_MODEL_DENSE_CLOUD': {'section': 'TIMING'},
+        'BUILD_MODEL_MESH_DENSE_CLOUD': {'section': 'TIMING'},
+        'BUILD_MODEL_UV_DENSE_CLOUD': {'section': 'TIMING'},
+        'BUILD_MODEL_TEXTURE_DENSE_CLOUD': {'section': 'TIMING'},
+
+        'BUILD_MODEL_DEPTH_MAPS': {'section': 'TIMING'},
+        'BUILD_MODEL_MESH_DEPTH_MAPS': {'section': 'TIMING'},
+        'BUILD_MODEL_UV_DEPTH_MAPS': {'section': 'TIMING'},
+        'BUILD_MODEL_TEXTURE_DEPTH_MAPS': {'section': 'TIMING'}
     }
 
     prefsFileName = None

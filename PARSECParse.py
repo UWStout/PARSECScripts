@@ -33,27 +33,50 @@ subparsers = parser.add_subparsers(title='Workflow', dest='workflow', descriptio
 
 # Fixed workflow subcommands
 quick_command = subparsers.add_parser('quick', help='Quick photogrammetry processing.')
-quick_command.add_argument('-r', '--refine', action='store_true', help='Refine prior data instead of overwriting.')
+quick_command.add_argument('-r', '--refine', action='store_true', default=False, help='Refine prior data instead of overwriting.')
+quick_command.add_argument('-t', '--tolerance', action='store', default=50, help='Marker detection tolerance.')
+quick_command.add_argument('-mt', '--modelTie', action='store_true', default=False, help='Generate model from sparse tie points.')
+quick_command.add_argument('-md', '--modelDepth', action='store_true', default=False, help='Generate model from depth maps.')
+quick_command.add_argument('-mc', '--modelCloud', action='store_true', default=False, help='Generate model from dense point cloud.')
 
 general_command = subparsers.add_parser('general', help='General/normal quality processing.')
 general_command.add_argument('-r', '--refine', action='store_true', help='Refine prior data instead of overwriting.')
+general_command.add_argument('-t', '--tolerance', action='store', default=50, help='Marker detection tolerance.')
+general_command.add_argument('-mt', '--modelTie', action='store_true', default=False, help='Generate model from sparse tie points.')
+general_command.add_argument('-md', '--modelDepth', action='store_true', default=False, help='Generate model from depth maps.')
+general_command.add_argument('-mc', '--modelCloud', action='store_true', default=False, help='Generate model from dense point cloud.')
 
 archival_command = subparsers.add_parser('archival', help='Archival quality processing.')
-archival_command.add_argument('-r', '--refine', action='store_true', help='Refine prior data instead of overwriting.')
+archival_command.add_argument('-r', '--refine', action='store_true', default=False, help='Refine prior data instead of overwriting.')
+archival_command.add_argument('-t', '--tolerance', action='store', default=50, help='Marker detection tolerance.')
+archival_command.add_argument('-mt', '--modelTie', action='store_true', default=False, help='Generate model from sparse tie points.')
+archival_command.add_argument('-md', '--modelDepth', action='store_true', default=False, help='Generate model from depth maps.')
+archival_command.add_argument('-mc', '--modelCloud', action='store_true', default=False, help='Generate model from dense point cloud.')
 
 # Custom workflow subcommand
 custom_command = subparsers.add_parser('custom', help='Run a custom workflow')
-custom_command.add_argument('-qa', '--quickAlign', action='store_true', help='Preforms quick quality image matching.')
-custom_command.add_argument('-ga', '--genAlign', action='store_true', help='Preforms general quality image matching.')
-custom_command.add_argument('-aa', '--arcAlign', action='store_true', help='Preforms archival quality image matching.')
-custom_command.add_argument('-gd', '--genDense', action='store_true', help='Creates general quality dense cloud. Requires image matching to have been run.')
-custom_command.add_argument('-ad', '--arcDense', action='store_true', help='Creates archival quality dense cloud. Requires image matching to have been run.')
-custom_command.add_argument('-qm', '--quickMod', action='store_true', help='Creates a low-quality model. Requires image matching to have been run.')
-custom_command.add_argument('-gm', '--genMod', action='store_true', help='Creates a general-quality model. Requires a dense cloud.')
-custom_command.add_argument('-am', '--arcMod', action='store_true', help='Creates an archival-quality model. Requires a dense cloud.')
+custom_command.add_argument('-qa', '--quickAlign', action='store_true', default=False, help='Preforms quick quality image matching.')
+custom_command.add_argument('-ga', '--genAlign', action='store_true', default=False, help='Preforms general quality image matching.')
+custom_command.add_argument('-aa', '--arcAlign', action='store_true', default=False, help='Preforms archival quality image matching.')
+
+custom_command.add_argument('-qd', '--quickDense', action='store_true', default=False, help='Creates quick quality dense cloud. Requires image matching to have been run.')
+custom_command.add_argument('-gd', '--genDense', action='store_true', default=False, help='Creates general quality dense cloud. Requires image matching to have been run.')
+custom_command.add_argument('-ad', '--arcDense', action='store_true', default=False, help='Creates archival quality dense cloud. Requires image matching to have been run.')
+
+custom_command.add_argument('-qm', '--quickMod', action='store_true', default=False, help='Creates a low-quality model. Requires image matching to have been run.')
+custom_command.add_argument('-gm', '--genMod', action='store_true', default=False, help='Creates a general-quality model. Requires a dense cloud.')
+custom_command.add_argument('-am', '--arcMod', action='store_true', default=False, help='Creates an archival-quality model. Requires a dense cloud.')
+
+custom_command.add_argument('-r', '--refine', action='store_true', default=False, help='Refine prior data instead of overwriting.')
+custom_command.add_argument('-t', '--tolerance', action='store', default=50, help='Marker detection tolerance.')
+custom_command.add_argument('-mt', '--modelTie', action='store_true', default=False, help='Generate model from sparse tie points.')
+custom_command.add_argument('-md', '--modelDepth', action='store_true', default=False, help='Generate model from depth maps.')
+custom_command.add_argument('-mc', '--modelCloud', action='store_true', default=False, help='Generate model from dense point cloud.')
 
 # Utility actions subcommand
 utility_command = subparsers.add_parser('utility', help='Utility actions to apply to an existing project.')
+utility_command.add_argument('-t', '--tolerance', action='store', default=50, help='Marker detection tolerance.')
+
 utility_group = utility_command.add_mutually_exclusive_group()
 utility_group.add_argument('-cc', '--chunkClean', action='store_true', help='Levels, orients, and centers the chunk based on markers.')
 
@@ -118,24 +141,39 @@ logger = Logger.getLogger()
 MetaUtils.CHECK_VER(Metashape.app.version)
 MetaUtils.USE_GPU()
 
+# Read global workflow options
+REFINE_ONLY = (False if args.refine is None else args.refine)
+MODEL_SPARSE = (False if args.modelTie is None else args.modelTie)
+MODEL_DEPTH = (False if args.modelDepth is None else args.modelDepth)
+MODEL_DENSE = (False if args.modelCloud is None else args.modelCloud)
+args.tolerance = (50 if args.tolerance is None else int(args.tolerance))
+
 # Runs metaQuick from MetaWork using the current project.ini info
 match args.workflow:
     # Standard Workflows
     case 'quick':
-        MetaWork.metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+        if not MODEL_SPARSE and not MODEL_DEPTH and not MODEL_DENSE:
+            MODEL_SPARSE = True
+        MetaWork.metaQuick(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME, args.tolerance, REFINE_ONLY, MODEL_SPARSE, MODEL_DEPTH, MODEL_DENSE)
     case 'general':
-        MetaWork.metaGeneral(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+        if not MODEL_SPARSE and not MODEL_DEPTH and not MODEL_DENSE:
+            MODEL_DEPTH = True
+        MetaWork.metaGeneral(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME, args.tolerance, REFINE_ONLY, MODEL_SPARSE, MODEL_DEPTH, MODEL_DENSE)
     case 'archival':
-        MetaWork.metaArchival(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+        if not MODEL_SPARSE and not MODEL_DEPTH and not MODEL_DENSE:
+            MODEL_DEPTH = True
+        MetaWork.metaArchival(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME, args.tolerance, REFINE_ONLY, MODEL_SPARSE, MODEL_DEPTH, MODEL_DENSE)
 
     # Do a custom workflow
     case 'custom':
+        if not MODEL_SPARSE and not MODEL_DEPTH and not MODEL_DENSE:
+            MODEL_DEPTH = True
         MetaWork.metaCustom(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME, args)
 
     # Apply simple utility steps to existing project
     case 'utility':
         # Initialize the MetaUtils class
-        MU = MetaWork.metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME)
+        MU = MetaWork.metaInit(PATH_TO_IMAGES, PROJECT_NAME, PATH_TO_MASKS, PREFS_FILENAME, args.tolerance)
         MU.doc.save()
 
         # Apply any enabled utility steps
@@ -156,15 +194,18 @@ match args.workflow:
             MU.doc.save()
 
         if args.filterAggressive:
-            MU.filterTiePoints('aggressive')
+            MU.setRegion(1.1)
+            MU.filterTiePoints()
             MU.doc.save()
 
         if args.filterNormal:
-            MU.filterTiePoints('normal')
+            MU.setRegion(2.0)
+            MU.filterTiePoints()
             MU.doc.save()
 
         if args.filterLight:
-            MU.filterTiePoints('light')
+            MU.setRegion(3.0)
+            MU.filterTiePoints()
             MU.doc.save()
 
         if args.optimizeCameras:

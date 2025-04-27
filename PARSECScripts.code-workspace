@@ -4,14 +4,14 @@
 			"path": "."
 		},
 		{
-			"path": "C:/Users/sethb/OneDrive - University of Wisconsin-Stout/AnnaScans/April1/Outfit 2_002"
+			"path": "P:/SessionDownload/SES_Anna_AT_16_01_Fri_Apr_25_2025"
 		}
 	],
 	"settings": {
         "logViewer.watch": [
             {
                 "title": "Metashape Log",
-                "pattern": "C:\\Users\\sethb\\OneDrive - University of Wisconsin-Stout\\AnnaScans\\April1\\Outfit 2_002\\*.txt"
+                "pattern": "./cache/**/*metashape.txt"
             }
         ]
 	}

@@ -2,6 +2,7 @@
 
 import os
 import numpy as np
+import re
 
 import Metashape
 from CustomProgress import PBar
@@ -85,11 +86,27 @@ class MetaUtils:
         gpuList = Metashape.app.enumGPUDevices()
         gpuCount = len(gpuList)
 
-        # Enable all GPUs
-        if gpuCount > 0:
-            logger.info("Enabling %d GPUs" % (gpuCount))
-            Metashape.app.gpu_mask = 2**gpuCount - 2
-            Metashape.app.cpu_enable = False
+        # Skip if no GPUs found
+        if gpuCount == 0:
+            logger.info("No GPUs found")
+            return
+
+        # Leave out Intel integrated GPUs
+        enabledCount = 0
+        mask = 0
+        for i in range(gpuCount):
+            matchRegex = re.search(r"Intel.+UHD", gpuList[i]['name'], re.IGNORECASE)
+            if not matchRegex:
+                mask = mask | (1 << i)
+                enabledCount += 1
+            else:
+                logger.info("Ignoring GPU: " + gpuList[i]['name'])
+
+
+        # Enable GPUs and disable the CPU (to optimize performance)
+        logger.info("Enabling %d GPUs" % (enabledCount))
+        Metashape.app.gpu_mask = mask
+        Metashape.app.cpu_enable = False
 
     @staticmethod
     def fitPlaneToMarkers(markers):
@@ -355,7 +372,7 @@ class MetaUtils:
         return elapsed
 
     # Places markers on coded targets in images.
-    def detectMarkers(self):
+    def detectMarkers(self, tolerance=50):
         MetaUtils.ensureLoggerReady()
 
         # If the chunk already has markers, don't redetect
@@ -363,15 +380,15 @@ class MetaUtils:
             logger.info("Skipping marker detection (chunk already has markers)")
             return 0
 
-        logger.info("Detecting markers")
+        logger.info("Detecting markers (tolerance = %d)" % tolerance)
         elapsed = 0
         with PBar("Detecting Markers") as pbar:
-            self.chunk.detectMarkers(tolerance=50, filter_mask=False, inverted=False,
+            self.chunk.detectMarkers(tolerance=tolerance, filter_mask=False, inverted=False,
                 noparity=False, maximum_residual=5, progress=(lambda x: pbar.update(x)))
             pbar.finish()
             elapsed = pbar.getTime()
 
-        logger.info("Done Detecting Markers")
+        logger.info("Done Detecting Markers (found %d markers)" % len(self.chunk.markers))
         return elapsed
 
     # Places markers on coded targets in images.
